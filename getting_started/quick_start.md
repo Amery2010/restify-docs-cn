@@ -91,24 +91,17 @@ server.post('/foo',
 
 ## 通用预处理程序：server.pre()
 
-The `pre` handler chain is executed before routing. That means these handlers
-will execute for an incoming request even if it's for a route that you did not
-register. This can be useful for logging metrics or for cleaning up the
-incoming request before routing it.
+`pre` 处理程序链在路由之前执行。这意味着这些处理程序将针对传入的请求执行，即便它是你并未注册的路由。这可以用于日志和指标或在路由之前清理传入的请求。
 
 ```js
-// dedupe slashes in URL before routing
+// 在路由之前删除 URL 中重复的斜杠
 server.pre(restify.plugins.dedupeSlashes());
 ```
 
 
-## Universal handlers: server.use()
+## 通用处理程序：server.use()
 
-The `use` handler chains is executed after a route has been chosen to service
-the request. Function handlers that are attached via the `use()` method will be
-run for all routes. Since restify runs handlers in the order they are
-registered, make sure that all your `use()` calls happen before defining any
-routes.
+`use` 处理程序链式在请求被路由选择服务之后执行的。通过 `use()` 方法附加的函数处理程序将针对所有路由运行。由于 restify 以注册顺序运行处理程序，确保在定义任何路由之前，你所有的 `use()` 调用都会发生。
 
 ```js
 server.use(function(req, res, next) {
@@ -118,19 +111,13 @@ server.use(function(req, res, next) {
 ```
 
 
-## Using next()
+## 使用 next()
 
-Upon completion of each function in the handler chain, you are responsible for
-calling `next()`. Calling `next()` will move to the next function in the chain.
+当处理程序链的每个函数执行之后，你需要负责调用 `next()`。调用 `next()` 后将移动到链中的下一个函数。
 
-Unlike other REST frameworks, calling `res.send()` does not trigger `next()`
-automatically. In many applications, work can continue to happen after
-`res.send()`, so flushing the response is not synonymous with completion of a
-request.
+与其他的 REST 框架不同，调用 `res.send()` 不会自动触发 `next()`。在许多应用程序中，在 `res.send()` 之后可能需要继续处理，因此刷新响应并不等同于完成请求。
 
-In the normal case, `next()` does not typically take any parameters. If for
-some reason you want to stop processing the request, you can call `next(false)`
-to stop processing the request:
+在正常情况下，`next()` 通常不会使用任何参数。如果由于某种原因你想停止处理请求，你可以调用 `next(false)` 来停止处理请求：
 
 ```js
 server.use([
@@ -142,35 +129,28 @@ server.use([
     return next();
   },
   function(req, res, next) {
-    // if someCondition is true, this handler is never executed
+    // 如果 someCondition 为 true，则该处理程序永远不会执行
   }
 ]);
 ```
 
-`next()` also accepts any object for which `instanceof Error` is true, which
-will cause restify to send that Error object as a response to the client. The
-status code for the response will be inferred from the Error object's
-`statusCode` property. If no `statusCode` is found, it will default to 500.
-So the snippet below will send a serialized error to the client with an http
-500:
+`next()` 也接受任何 `instanceof Error` 为 true 的对象，这将导致 restify 发送该错误对象作为对客户端的响应。可以从 Error 对象的 `statusCode` 属性推断出响应的状态码。如果找不到 `statusCode`，它将默认为 500。所以下面的代码片段会通过一个 http 500 发送一个序列化的错误给客户端：
 
 ```js
 server.use(function(req, res, next) {
   return next(new Error('boom!'));
 });
 ```
+  return next(new NotFoundError('not here!'));
 
-And this will send a 404, since the `NotFoundError` constructor provides a
-value of 404 for `statusCode`:
+这会发送一个 http 404，因为 `NotFoundError` 构造函数为 `statusCode` 提供了一个 404 的值：
 
 ```js
 server.use(function(req, res, next) {
-  return next(new NotFoundError('not here!'));
 });
 ```
 
-Calling `res.send()` with an Error object produces similar results, with this
-snippet sending an http 500 with a serialized error the client:
+用 Error 对象调用 `res.send()` 会产生类似的结果，这段代码会通过一个 http 500 发送一个序列化的错误给客户端：
 
 ```js
 server.use(function(req, res, next) {
@@ -179,25 +159,13 @@ server.use(function(req, res, next) {
 });
 ```
 
-The difference between the two is that invoking `next()` with an Error object
-allows you to leverage the server's [event
-emitter](/components/server.md#errors). This enables you to handle all
-occurrences of an error type using a common handler. See the [error
-handling](#error handling) section for more details.
+这两者的区别在于使用 Error 对象调用 `next()` 允许你利用服务器的 [EventEmitter](/api/server.md#errors)。这使你可以使用通用的处理程序来处理所有出现的错误类型。更多详情，请参见[错误处理](#错误处理)章节。
 
+最后，你可以通过调用带有 Error 对象的 `next.ifError(err)` 来引起 restify 抛出错误，从而导致进程失败。如果你遇到无法处理的错误，需要你终止该进程时，这会非常有用。
 
-Lastly, you can call `next.ifError(err)` with an Error object to cause restify
-to throw, bringing down the process. This can be useful if you an Error is
-surfaced that cannot be handled, requiring you to kill the process.
+## 路由
 
-
-## Routing
-
-restify routing, in 'basic' mode, is pretty much identical to express/sinatra,
-in that HTTP verbs are used with a parameterized resource to determine what
-chain of handlers to run. Values associated with named placeholders are
-available in `req.params`. That values will be URL-decoded before being
-passed to you.
+'basic' 模式下的 restify 路由行为与 express/sinatra 非常类似，都使用 HTTP 动词与参数化资源一起来确定要运行的处理程序链。在 `req.params` 中可以找到与指定占位符关联的值。这些值在传递给你之前会被 URL 编码。
 
 ```js
 function send(req, res, next) {
@@ -218,9 +186,7 @@ server.del('hello/:name', function rm(req, res, next) {
 });
 ```
 
-You can also pass in a [RegExp](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/RegExp)
-object and access the capture group with `req.params` (which will not
-be interpreted in any way):
+你也可以传入 [RegExp](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 对象并通过 `req.params` 访问捕获组（不会以任何方式解析）：
 
 ```js
 server.get(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/, function(req, res, next) {
@@ -231,55 +197,46 @@ server.get(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/, function(req, res, next) {
 });
 ```
 
-Here any request like:
+有一些像这样的请求：
 
 ```sh
 $ curl localhost:8080/foo/my/cats/name/is/gandalf
 ```
 
-Would result in `req.params[0]` being `foo` and `req.params[1]` being
-`my/cats/name/is/gandalf`.
+会导致 `req.params[0]` 为 `foo`，`req.params[1]` 为 `my/cats/name/is/gandalf`。
 
-
-Routes can be specified by any of the following http verbs - `del`, `get`,
-`head`, `opts`, `post`, `put`, and `patch`.
-
+路由可以被指定为以下任意 http 动词 - `del`、`get`、`head`、`opts`、`post`、`put` 和 `patch`。
 
 ```js
 server.get(
-    '/foo/:id',
-    function(req, res, next) {
-        console.log('Authenticate');
-        return next();
-    },
-    function(req, res, next) {
-        res.send(200);
-        return next();
-    }
+  '/foo/:id',
+  function(req, res, next) {
+    console.log('Authenticate');
+    return next();
+  },
+  function(req, res, next) {
+    res.send(200);
+    return next();
+  }
 );
 ```
 
-### Hypermedia
+### 超媒体
 
-If a parameterized route was defined with a string (not a regex), you can
-render it from other places in the server. This is useful to have HTTP
-responses that link to other resources, without having to hardcode URLs
-throughout the codebase. Both path and query strings parameters get URL encoded
-appropriately.
-
+如果参数化路由是由字符串（而不是正则表达式）定义的，那么你可以从服务器中的其他位置渲染它。这对于链接到其他资源的 HTTP 响应非常有用，而不必在整个代码库中对 URL 进行硬编码。路径和查询字符串参数都可以适当地进行 URL 编码。
 
 ```js
 server.get({name: 'city', path: '/cities/:slug'}, /* ... */);
 
-// in another route
+// 在另一个路由中
 res.send({
   country: 'Australia',
-  // render a URL by specifying the route name and parameters
+  // 通过指定路由名称和参数来呈现 URL
   capital: server.router.render('city', {slug: 'canberra'}, {details: true})
 });
 ```
 
-Which returns:
+这将返回：
 
 ```js
 {
@@ -288,11 +245,9 @@ Which returns:
 }
 ```
 
-### Versioned Routes
+### 版本化路由
 
-Most REST APIs tend to need versioning, and restify ships with support
-for [semver](http://semver.org/) versioning in an `Accept-Version`
-header, the same way you specify NPM version dependencies:
+大多数的 REST API 倾向于需要版本控制，并且使用 `Accept-Version` 报头来支持 [semver](http://semver.org/) 版本化，这种方式与你指定 NPM 版本依赖相同：
 
 ```js
 var restify = require('restify');
@@ -317,7 +272,7 @@ server.get('/hello/:name', restify.plugins.conditionalHandler([
 server.listen(8080);
 ```
 
-Try hitting with:
+试着输入：
 
 ```sh
 $ curl -s localhost:8080/hello/mark
@@ -333,17 +288,9 @@ $ curl -s -H 'accept-version: ~3' localhost:8080/hello/mark | json
 }
 ```
 
-In the first case, we didn't specify an `Accept-Version` header at all, so
-restify treats that like sending a `*`. Much as not sending an `Accept` header
-means the client gets the server's choice. Restify will choose this highest
-matching route. In the second case, we explicitly asked for for V1, which got
-us response a response from the version 1 handler function, but then we asked
-for V2 and got back JSON. Finally, we asked for a version that doesn't exist
-and got an error.
+在第一种情况下，我们根本没有指定 `Accept-Version` 报头，所以 restify 会像请求发送了 `*` 那样进行对待。不发送 `Accept` 报头意味着客户端遵照服务器的选择，Restify 会选择最匹配的路由。在第二种情况下，我们明确要求 V1，它让我们回应了版本1处理函数的响应，但那之后我们要求 V2 并返回 JSON。最后，我们要求了一个不存在的版本，这导致出现了错误。
 
-You can default the versions on routes by passing in a version field at server
-creation time.  Lastly, you can support multiple versions in the API by using
-an array:
+你可以通过在服务器创建时传递版本字段来设置路由的默认版本。最后，你可以通过使用数组来支持多版本的 API：
 
 ```js
 server.get('/hello/:name' restify.plugins.conditionalHandler([
@@ -351,12 +298,9 @@ server.get('/hello/:name' restify.plugins.conditionalHandler([
 ]));
 ```
 
-In this case you may need to know more information such as what the original
-requested version string was, and what the matching version from the routes
-supported version array was. Two methods make this info available:
+在这种情况下，你可能需要了解更多的信息，例如原始请求的版本字符串是什么，以及支持版本数组的路由的匹配版本是什么。有两种方法可用于获得此信息：
 
 ```js
-var PATH = '/version/test';
 server.get('/version/test', restify.plugins.conditionalHandler([
   {
     version: ['2.0.0', '2.1.0', '2.2.0'],
@@ -371,7 +315,7 @@ server.get('/version/test', restify.plugins.conditionalHandler([
 ]));
 ```
 
-Hitting this route will respond as below:
+输入该路由将得到以下响应：
 
 ```sh
 $ curl -s -H 'accept-version: <2.2.0' localhost:8080/version/test | json
@@ -380,7 +324,6 @@ $ curl -s -H 'accept-version: <2.2.0' localhost:8080/version/test | json
   "matchedVersion": "2.1.0"
 }
 ```
-
 
 ## Upgrade Requests
 
