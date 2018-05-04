@@ -690,7 +690,7 @@ Response-Time: 3
 * ResourceNotFoundError (404 Not Found)
 * WrongAcceptError (406 Not Acceptable)
 
-* 具体的使用场景可以查阅 [HTTP状态码](https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81)，译者注*
+_具体的使用场景可以查阅 [HTTP状态码](https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81)，译者注_
 
 内置的 RestErrors 包含：
 
@@ -721,7 +721,7 @@ errs.makeConstructor('ZombieApocalypseError');
 var myErr = new errs.ZombieApocalypseError('zomg!');
 ```
 
-构造函数需要 `message`、`statusCode`、`restCode` 和 `context` 选项。请查看 restify-errors 代码库以获取更多信息。
+构造函数需要提供 `message`、`statusCode`、`restCode` 和 `context` 选项。请查看 restify-errors 代码库以获取更多信息。
 
 
 ## Socket.IO
