@@ -286,41 +286,39 @@ server.param("user", function (req, res, next) {
 
 ### address
 
-Returns the server address.
-Wraps node's
-[address()](http://nodejs.org/docs/latest/api/net.html#net_server_address).
+返回服务器地址。封装了 Node.js 的 [close()](http://nodejs.org/docs/latest/api/net.html#net_event_close)。
 
-**Examples**
+**例子**
 
 ```javascript
 server.address()
 ```
 
-_Output:_
+_输出：_
 
 ```javascript
 { address: '::', family: 'IPv6', port: 8080 }
 ```
 
-Returns **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** Address of server
+返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)**，服务器地址。
 
 ### inflightRequests
 
-Returns the number of inflight requests currently being handled by the server
+返回服务器当前正在处理尚未返回结果的请求的数量。
 
-Returns **[number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** number of inflight requests
+返回 **[number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)**，正在进行的请求数量。
 
 ### debugInfo
 
-Return debug information about the server.
+返回与服务器相关的调试信息。
 
-**Examples**
+**例子**
 
 ```javascript
 server.getDebugInfo()
 ```
 
-_Output:_
+_输出：_
 
 ```javascript
 {
@@ -351,19 +349,19 @@ _Output:_
 }
 ```
 
-Returns **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** debug info
+返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)**，调试信息。
 
 ### toString
 
-toString() the server for easy reading/output.
+toString()，易于服务器读取和输出。
 
-**Examples**
+**例子**
 
 ```javascript
 server.toString()
 ```
 
-_Output:_
+_输出：_
 
 ```javascript
 Accepts: application/json, text/plain, application/octet-stream,
@@ -386,7 +384,7 @@ Url: http://[::]:8080
 Version:
 ```
 
-Returns **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** stringified server
+返回 **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)**，字符串化服务器。
 
 ## Events
 
@@ -663,9 +661,6 @@ on this event, and if there are none, responds with a default 415 handler.
 
 
 ## Types
-
-
-
 
 ### Server~methodOpts
 
