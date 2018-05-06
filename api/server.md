@@ -19,7 +19,7 @@
     -   [inflightRequests](#inflightrequests)
     -   [debugInfo](#debuginfo)
     -   [toString](#tostring)
--   [Events](#events)
+-   [事件](#事件)
 -   [Errors](#errors)
 -   [Types](#types)
     -   [Server~methodOpts](#servermethodopts)
@@ -52,7 +52,7 @@ restify 服务器对象时您为传入的请求注册路由和处理程序的主
 
 **例子**
 
-```javascript
+```js
 var restify = require('restify');
 var server = restify.createServer();
 
@@ -90,7 +90,7 @@ server.listen(8080, function () {
 
 **例子**
 
-```javascript
+```js
 var restify = require('restify');
 var server = restify.createServer();
 
@@ -113,7 +113,7 @@ server.listen(8080, function () {
 
 _您可以这样来调用：_
 
-```javascript
+```js
 server.listen(80)
 server.listen(80, '127.0.0.1')
 server.listen('/tmp/server.sock')
@@ -143,7 +143,7 @@ server.listen('/tmp/server.sock')
 
 **例子**
 
-```javascript
+```js
 server.get('/', function (req, res, next) {
    res.send({ hello: 'world' });
    next();
@@ -222,7 +222,7 @@ server.get('/', function (req, res, next) {
 
 **例子**
 
-```javascript
+```js
 server.pre(function(req, res, next) {
   req.headers.accept = 'application/json';
   return next();
@@ -231,7 +231,7 @@ server.pre(function(req, res, next) {
 
 _例如，`pre()` 可用于删除 URL中的重复斜杠_
 
-```javascript
+```js
 server.pre(restify.pre.dedupeSlashes());
 ```
 
@@ -260,7 +260,7 @@ Express.js 路由参数前提条件所提供功能的最小端口。
 
 公开一个 API：
 
-```javascript
+```js
 server.param("user", function (req, res, next) {
   // 在这里加载用户的信息，请确保调用 next()
 });
@@ -290,13 +290,13 @@ server.param("user", function (req, res, next) {
 
 **例子**
 
-```javascript
+```js
 server.address()
 ```
 
 _输出：_
 
-```javascript
+```js
 { address: '::', family: 'IPv6', port: 8080 }
 ```
 
@@ -314,13 +314,13 @@ _输出：_
 
 **例子**
 
-```javascript
+```js
 server.getDebugInfo()
 ```
 
 _输出：_
 
-```javascript
+```js
 {
   routes: [
     {
@@ -357,13 +357,13 @@ toString()，易于服务器读取和输出。
 
 **例子**
 
-```javascript
+```js
 server.toString()
 ```
 
 _输出：_
 
-```javascript
+```js
 Accepts: application/json, text/plain, application/octet-stream,
 application/javascript
 Name: restify
@@ -386,20 +386,13 @@ Version:
 
 返回 **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)**，字符串化服务器。
 
-## Events
+## 事件
 
-In additional to emitting all the events from node's
-[http.Server](http://nodejs.org/docs/latest/api/http.html#http_class_http_server),
-restify servers also emit a number of additional events that make building REST
-and web applications much easier.
+除了触发所有来自 Node.js 中 [http.Server](http://nodejs.org/docs/latest/api/http.html#http_class_http_server) 的事件之外，restify 服务器还会触发大量附加事件，这些事件使构建 REST 和 Web 应用程序变得更加容易。
 
 ### restifyError
 
-This event is emitted following all error events as a generic catch all. It is
-recommended to use specific error events to handle specific errors, but this
-event can be useful for metrics or logging. If you use this in conjunction with
-other error events, the most specific event will be fired first, followed by
-this one:
+这个事件是在所有错误事件触发后作为通用捕获而存在。建议使用特定的错误事件来处理特定的错误，但此事件可用于度量或日志记录。如果您将其与其他错误事件一起使用，则会首先触发最具体的事件，然后才是此事件：
 
 ```js
 server.get('/', function(req, res, next) {
@@ -407,118 +400,101 @@ server.get('/', function(req, res, next) {
 });
 
 server.on('InternalServer', function(req, res, err, callback) {
-  // this will get fired first, as it's the most relevant listener
+  // 这将首先被触发，因为它是最有关联性的侦听器
   return callback();
 });
 
 server.on('restifyError', function(req, res, err, callback) {
-  // this is fired second.
+  // 其次才会触发该事件
   return callback();
 });
 ```
 
 ### after
 
-After each request has been fully serviced, an `after` event is fired. This
-event can be hooked into to handle audit logs and other metrics. Note that
-flushing a response does not necessarily correspond with an `after` event.
-restify considers a request to be fully serviced when either:
+当每个请求都已经被完全服务之后，会触发一个 `after` 事件。这个事件可以被用来处理审计日志和其他指标。请注意，刷新响应不一定与 `after` 事件相对应。在以下情况下，restify 会认为请求已经得到了全面服务：
 
-1) The handler chain for a route has been fully completed
-2) An error was returned to `next()`, and the corresponding error events have
-   been fired for that error type
+1) 路由的处理程序链已经完全处理完成。
+2) `next()` 返回了一个错误，并且针对该错误类型已经触发了相应的错误事件。
 
-The signature is for the after event is as follows:
+`after` 事件的参数形式如下：
 
 ```js
 function(req, res, route, error) { }
 ```
 
--   `req` - the request object
--   `res` - the response object
--   `route` - the route object that serviced the request
--   `error` - the error passed to `next()`, if applicable
+-   `req` - 请求对象
+-   `res` - 响应对象
+-   `route` - 为请求提供服务的路由对象
+-   `error` - 传递给 `next()` 的错误（如果存在的话）
 
-Note that when the server automatically responds with a
-NotFound/MethodNotAllowed/VersionNotAllowed, this event will still be fired.
+请注意，当服务器自动响应 NotFound / MethodNotAllowed / VersionNotAllowed 时，该事件仍将被触发。
 
 ### pre
 
-Before each request has been routed, a `pre` event is fired. This event can be
-hooked into handle audit logs and other metrics. Since this event fires
-_before_ routing has occured, it will fire regardless of whether the route is
-supported or not, e.g. requests that result in a `404`.
+在每个请求被路由之前，会触发一个 `pre` 事件。此事件可以用来挂载处理审核日志和其他指标。由于此事件在路由发生 _之前_ 触发，无论路由是否受到支持，它都会触发。例如，一个导致 `404` 的请求。
 
-The signature for the `pre` event is as follows:
+`pre` 事件的参数形式如下：
 
 ```js
 function(req, res) {}
 ```
 
--   `req` - the request object
--   `res` - the response object
+-   `req` - 请求对象
+-   `res` - 响应对象
 
-Note that when the server automatically responds with a
-NotFound/MethodNotAllowed/VersionNotAllowed, this event will still be fired.
+请注意，当服务器自动响应 NotFound / MethodNotAllowed / VersionNotAllowed 时，该事件仍将被触发。
 
 ### routed
 
-A `routed` event is fired after a request has been routed by the router, but
-before handlers specific to that route has run.
+`routed` 事件在路由器发送请求后触发，但在该路由器的处理程序运行之前。
 
-The signature for the `routed` event is as follows:
+`routed` 事件的参数形式如下：
 
 ```js
 function(req, res, route) {}
 ```
 
--   `req` - the request object
--   `res` - the response object
--   `route` - the route object that serviced the request
+-   `req` - 请求对象
+-   `res` - 响应对象
+-   `route` - 为请求提供服务的路由对象
 
 Note that this event will _not_ fire if a requests comes in that are not
 routable, i.e. one that would result in a `404`.
+请注意，如果有不可路由的请求进入，此事件 _不会_ 触发。例如，一个导致 `404` 的请求。
 
 ### uncaughtException
 
-If the restify server was created with `handleUncaughtExceptions: true`,
-restify will leverage [domains](https://nodejs.org/api/domain.html) to handle
-thrown errors in the handler chain. Thrown errors are a result of an explicit
-`throw` statement, or as a result of programmer errors like a typo or a null
-ref. These thrown errors are caught by the domain, and will be emitted via this
-event. For example:
+如果 restify 服务器是使用 `handleUncaughtExceptions: true`，restify 将利用 [domains](https://nodejs.org/api/domain.html) 来处理处理程序链中抛出的错误。抛出的错误是显式 `throw` 语句的结果，或者由于程序员的错误（如错字或空引用）导致的结果。这些抛出的错误被域捕获，并将通过这个事件发出。例如：
 
 ```js
 server.get('/', function(req, res, next) {
-    res.send(x);  // this will cause a ReferenceError
+    res.send(x);  // 这会导致 ReferenceError
     return next();
 });
 
 server.on('uncaughtException', function(req, res, route, err) {
-    // this event will be fired, with the error object from above:
+    // 上面的错误对象将会导致该事件的触发：
     // ReferenceError: x is not defined
 });
 ```
 
-If you listen to this event, you **must** send a response to the client. This
-behavior is different from the standard error events. If you do not listen to
-this event, restify's default behavior is to call `res.send()` with the error
-that was thrown.
+如果您监听了该事件，您 **必须** 向客户端发送回复。此行为与标准错误事件不同。如果你不听这个事件，restify 的默认行为是调用 `res.send()` 抛出错误。
 
-The signature is for the after event is as follows:
+`uncaughtException` 事件的参数形式如下：
 
 ```js
 function(req, res, route, error) { }
 ```
 
--   `req` - the request object
--   `res` - the response object
--   `route` - the route object that serviced the request
--   `error` - the error passed to `next()`, if applicable
+-   `req` - 请求对象
+-   `res` - 响应对象
+-   `route` - 为请求提供服务的路由对象
+-   `error` - 传递给 `next()` 的错误（如果存在的话）
 
 ### close
 
-Emitted when the server closes.
+服务器关闭时发出。
 
 
 ## Errors
@@ -676,7 +652,7 @@ Type: ([String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Referenc
 
 **Examples**
 
-```javascript
+```js
 // a static route
 server.get('/foo', function(req, res, next) {});
 // a parameterized route
