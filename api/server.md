@@ -20,8 +20,8 @@
     -   [debugInfo](#debuginfo)
     -   [toString](#tostring)
 -   [事件](#事件)
--   [Errors](#errors)
--   [Types](#types)
+-   [错误](#错误)
+-   [类型](#类型)
     -   [Server~methodOpts](#servermethodopts)
 
 ---
@@ -417,7 +417,7 @@ server.on('restifyError', function(req, res, err, callback) {
 1) 路由的处理程序链已经完全处理完成。
 2) `next()` 返回了一个错误，并且针对该错误类型已经触发了相应的错误事件。
 
-`after` 事件的参数形式如下：
+`after` 事件的函数签名如下：
 
 ```js
 function(req, res, route, error) { }
@@ -434,7 +434,7 @@ function(req, res, route, error) { }
 
 在每个请求被路由之前，会触发一个 `pre` 事件。此事件可以用来挂载处理审核日志和其他指标。由于此事件在路由发生 _之前_ 触发，无论路由是否受到支持，它都会触发。例如，一个导致 `404` 的请求。
 
-`pre` 事件的参数形式如下：
+`pre` 事件的函数签名如下：
 
 ```js
 function(req, res) {}
@@ -449,7 +449,7 @@ function(req, res) {}
 
 `routed` 事件在路由器发送请求后触发，但在该路由器的处理程序运行之前。
 
-`routed` 事件的参数形式如下：
+`routed` 事件的函数签名如下：
 
 ```js
 function(req, res, route) {}
@@ -469,8 +469,8 @@ routable, i.e. one that would result in a `404`.
 
 ```js
 server.get('/', function(req, res, next) {
-    res.send(x);  // 这会导致 ReferenceError
-    return next();
+  res.send(x);  // 这会导致 ReferenceError
+  return next();
 });
 
 server.on('uncaughtException', function(req, res, route, err) {
@@ -481,7 +481,7 @@ server.on('uncaughtException', function(req, res, route, err) {
 
 如果您监听了该事件，您 **必须** 向客户端发送回复。此行为与标准错误事件不同。如果你不听这个事件，restify 的默认行为是调用 `res.send()` 抛出错误。
 
-`uncaughtException` 事件的参数形式如下：
+`uncaughtException` 事件的函数签名如下：
 
 ```js
 function(req, res, route, error) { }
@@ -497,33 +497,24 @@ function(req, res, route, error) { }
 服务器关闭时发出。
 
 
-## Errors
+## 错误
 
-Restify handles errors as first class citizens. When an error object is passed
-to the `next()` function, an event is emitted on the server object, and the
-error object will be serialized and sent to the client. An error object is any
-object that passes an `instanceof Error` check.
+Restify 作为一等公民处理错误。当一个错误对象被传递给 `next()` 函数时，服务器对象会发出一个事件，并将该错误对象序列化发送到客户端。错误对象就是任何可以通过 `instanceof Error` 检测的对象。
 
-Before the error object is sent to the client, the server will fire an event
-using the name of the error, without the `Error` part of the name. For example,
-given an `InternalServerError`, the server will emit an `InternalServer` event.
-This creates opportunities to do logging, metrics, or payload mutation based on
-the type of error. For example:
+在将错误对象发送给客户端之前，服务器将触发使用该错误名称的事件，但不包含名称字符串中的 `Error`。例如，给定一个  `InternalServerError`，服务器将发出一个 `InternalServer` 事件。这为创建日志记录和指标，或基于错误类型的有效载荷突变创造了机会。例如：
 
 ```js
 var errs = require('restify-errors');
 
 server.get('/', function(req, res, next) {
-    return next(new errs.InternalServerError('boom!'));
+  return next(new errs.InternalServerError('boom!'));
 });
 
 server.on('InternalServer', function(req, res, err, callback) {
-    // before the response is sent, this listener will be invoked, allowing
-    // opportunities to do metrics capturing or logging.
-    myMetrics.capture(err);
-    // invoke the callback to complete your work, and the server will send out
-    // a response.
-    return callback();
+  // 在发送响应之前，将调用此侦听器，给与做指标捕捉或记录的机会。
+  myMetrics.capture(err);
+  // 调用回调来完成你的工作，使得服务器发出响应。
+  return callback();
 });
 ```
 
@@ -532,41 +523,42 @@ method of the error if desired. To do so, simply implement a custom
 `toString()` or `toJSON()`. Depending on the content-type and formatter being
 used for the response, one of the two serializers will be used. For example,
 given the folllwing example:
+在错误事件的侦听器内部，如果有必要的话，也可以修改错误的序列化方法。为此，只需实现一个自定义的 `toString()` 或 `toJSON()`。根据内容类型和用于响应格式化器，将使用其中之一。例如，下面给出的例子：
 
 ```js
 server.on('restifyError', function(req, res, err, callback) {
-    err.toJSON = function customToJSON() {
-        return {
-            name: err.name,
-            message: err.message
-        };
+  err.toJSON = function customToJSON() {
+    return {
+      name: err.name,
+      message: err.message
     };
-    err.toString = function customToString() {
-        return 'i just want a string';
-    };
-    return callback();
+  };
+  err.toString = function customToString() {
+    return 'i just want a string';
+  };
+  return callback();
 });
 ```
 
-A request with an `accept: application/json` will trigger the `toJSON()`
-serializer, while a request with `accept: text/plain` will trigger the
-`toString()` serializer.
+具有 `accept: application/json` 的请求将触发 `toJSON()` 序列化程序，而具有 `accept: text/plain` 的请求将触发 `toString()` 序列化程序。
 
 Note that the function signature for the error listener is identical for all
 emitted error events. The signature is as follows:
+请注意，错误侦听器的函数签名对于所有发出的错误事件都是相同的。签名如下：
 
 ```js
 function(req, res, err, callback) { }
 ```
 
--   `req` - the request object
--   `res` - the response object
--   `err` - the error object
--   `callback` - a callback function to invoke
+-   `req` - 请求对象
+-   `res` - 响应对象
+-   `err` - 错误对象
+-   `callback` - 用以调用的回调函数
 
 When using this feature in conjunction with
 [restify-errors](https://github.com/restify/errors), restify will emit events
 for all of the basic http errors:
+将此功能与 [restify-errors](https://github.com/restify/errors) 一起使用时，restify 会为所有基本的 http 错误发出事件：
 
 -   `400` - `BadRequestError`
 -   `401` - `UnauthorizedError`
@@ -608,59 +600,49 @@ for all of the basic http errors:
 -   `510` - `NotExtendedError`
 -   `511` - `NetworkAuthenticationRequiredError`
 
-Restify will also emit the following events:
+Restify 还会发出以下事件：
 
 ### NotFound
 
-When a client request is sent for a URL that does not exist, restify
-will emit this event. Note that restify checks for listeners on this
-event, and if there are none, responds with a default 404 handler.
+当一个客户端向一个不存在的 URL 发送请求时，restify 会发出该事件。请注意，restify 会检查此事件上的侦听器，如果没有，则使用默认的 404 处理程序进行响应。
 
 ### MethodNotAllowed
 
-When a client request is sent for a URL that exists, but not for the requested
-HTTP verb, restify will emit this event. Note that restify checks for listeners
-on this event, and if there are none, responds with a default 405 handler.
+当一个客户端向一个存在的 URL 发送请求，但不是该请求的 HTTP 动词时，restify 会发出该事件。请注意，restify 会检查此事件上的侦听器，如果没有，则使用默认的 405 处理程序进行响应。
 
 ### VersionNotAllowed
 
-When a client request is sent for a route that exists, but does not
-match the version(s) on those routes, restify will emit this
-event. Note that restify checks for listeners on this event, and if
-there are none, responds with a default 400 handler.
+当客户端向一个有效路由发送请求，但不匹配该路由上的版本时，restify 将发出该事件。请注意，restify 会检查此事件上的侦听器，如果没有，则使用默认的 400 处理程序进行响应。
 
 ### UnsupportedMediaType
 
-When a client request is sent for a route that exist, but has a `content-type`
-mismatch, restify will emit this event. Note that restify checks for listeners
-on this event, and if there are none, responds with a default 415 handler.
+当客户端向一个有效路由发送请求，但不匹配 `content-type` 时，restify 将发出该事件。请注意，restify 会检查此事件上的侦听器，如果没有，则使用默认的 415 处理程序进行响应。
 
 
-## Types
+## 类型
 
 ### Server~methodOpts
 
-Server method opts
+服务器的方法选项。
 
-Type: ([String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Regexp](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) \| [Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object))
+类型：([String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Regexp](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) \| [Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object))
 
-**Properties**
+**属性**
 
--   `name` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** a name for the route
--   `path` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** can be any String accepted by
-    [find-my-way](https://github.com/delvedor/find-my-way)
+-   `name` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 路由的名称
+-   `path` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 可以是任何被 [find-my-way](https://github.com/delvedor/find-my-way) 接受的字符串
 
-**Examples**
+**例子**
 
 ```js
-// a static route
+// 一个静态路由
 server.get('/foo', function(req, res, next) {});
-// a parameterized route
+// 一个参数化的路由
 server.get('/foo/:bar', function(req, res, next) {});
-// a regular expression
+// 一个正则表达式
 server.get('/example/:file(^\\d+).png', function(req, res, next) {});
-// an options object
+// 一个选项对象
 server.get({
-    path: '/foo',
+  path: '/foo',
 }, function(req, res, next) {});
 ```
