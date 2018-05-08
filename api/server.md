@@ -121,7 +121,7 @@ server.listen('/tmp/server.sock')
 
 -   抛出 **[TypeError](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError)** 
 
-返回 **[undefined](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)**，无返回值
+返回 **[undefined](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)** 无返回值
 
 ### close
 
@@ -131,7 +131,7 @@ server.listen('/tmp/server.sock')
 
 -   `callback` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** 回调完成后调用
 
-返回 **[undefined](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)**，无返回值
+返回 **[undefined](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)** 无返回值
 
 ### get
 
@@ -150,7 +150,7 @@ server.get('/', function (req, res, next) {
 });
 ```
 
-返回 **Route**，新创建的路由。
+返回 **Route** 新创建的路由。
 
 ### head
 
@@ -160,7 +160,7 @@ server.get('/', function (req, res, next) {
 
 -   `opts` **[Server~methodOpts](#servermethodopts)** 如果是字符串，则处理 URL。如果是选项对象，则至少要处理 URL。
 
-返回 **Route**，新创建的路由。
+返回 **Route** 新创建的路由。
 
 ### post
 
@@ -170,7 +170,7 @@ server.get('/', function (req, res, next) {
 
 -   `post` **[Server~methodOpts](#servermethodopts)** 如果是字符串，则处理 URL。如果是选项对象，则至少要处理 URL。
 
-返回 **Route**，新创建的路由。
+返回 **Route** 新创建的路由。
 
 ### put
 
@@ -180,7 +180,7 @@ server.get('/', function (req, res, next) {
 
 -   `put` **[Server~methodOpts](#servermethodopts)** 如果是字符串，则处理 URL。如果是选项对象，则至少要处理 URL。
 
-返回 **Route**，新创建的路由。
+返回 **Route** 新创建的路由。
 
 ### patch
 
@@ -190,7 +190,7 @@ server.get('/', function (req, res, next) {
 
 -   `patch` **[Server~methodOpts](#servermethodopts)** 如果是字符串，则处理 URL。如果是选项对象，则至少要处理 URL。
 
-返回 **Route**，新创建的路由。
+返回 **Route** 新创建的路由。
 
 ### del
 
@@ -200,7 +200,7 @@ server.get('/', function (req, res, next) {
 
 -   `opts` **[Server~methodOpts](#servermethodopts)** 如果是字符串，则处理 URL。如果是选项对象，则至少要处理 URL。
 
-返回 **Route**，新创建的路由。
+返回 **Route** 新创建的路由。
 
 ### opts
 
@@ -210,7 +210,7 @@ server.get('/', function (req, res, next) {
 
 -   `opts` **[Server~methodOpts](#servermethodopts)** 如果是字符串，则处理 URL。如果是选项对象，则至少要处理 URL。
 
-返回 **Route**，新创建的路由。
+返回 **Route** 新创建的路由。
 
 ### pre
 
@@ -235,7 +235,7 @@ _例如，`pre()` 可用于删除 URL中的重复斜杠_
 server.pre(restify.pre.dedupeSlashes());
 ```
 
-返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)**，返回自身。
+返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 自身。
 
 ### use
 
@@ -248,7 +248,7 @@ server.pre(restify.pre.dedupeSlashes());
 -   `handler` **...([Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function) \| [Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array))** 可变数量的处理函数
     -   and/or 可变数量的处理函数嵌套数组
 
-返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)**，返回自身。
+返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 自身。
 
 ### param
 
@@ -271,7 +271,7 @@ server.param("user", function (req, res, next) {
 -   `name` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 要响应的 URL 参数的名称
 -   `fn` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 要执行的中间件函数
 
-返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)**，返回自身。
+返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 自身。
 
 ### rm
 
@@ -282,7 +282,7 @@ server.param("user", function (req, res, next) {
 -   `routeName` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 路由名称。
 -   在糟糕的输入时 **[TypeError](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError)** 抛出错误。
 
-返回 **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**，如果路由被删除，则为 true；否则为 false。
+返回 **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 如果路由被删除，则为 true；否则为 false。
 
 ### address
 
@@ -300,13 +300,13 @@ _输出：_
 { address: '::', family: 'IPv6', port: 8080 }
 ```
 
-返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)**，服务器地址。
+返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 服务器地址。
 
 ### inflightRequests
 
 返回服务器当前正在处理尚未返回结果的请求的数量。
 
-返回 **[number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)**，正在进行的请求数量。
+返回 **[number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 正在进行的请求数量。
 
 ### debugInfo
 
@@ -349,7 +349,7 @@ _输出：_
 }
 ```
 
-返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)**，调试信息。
+返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 调试信息。
 
 ### toString
 
@@ -384,7 +384,7 @@ Url: http://[::]:8080
 Version:
 ```
 
-返回 **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)**，字符串化服务器。
+返回 **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 字符串化服务器。
 
 ## 事件
 
@@ -459,8 +459,6 @@ function(req, res, route) {}
 -   `res` - 响应对象
 -   `route` - 为请求提供服务的路由对象
 
-Note that this event will _not_ fire if a requests comes in that are not
-routable, i.e. one that would result in a `404`.
 请注意，如果有不可路由的请求进入，此事件 _不会_ 触发。例如，一个导致 `404` 的请求。
 
 ### uncaughtException
@@ -474,8 +472,8 @@ server.get('/', function(req, res, next) {
 });
 
 server.on('uncaughtException', function(req, res, route, err) {
-    // 上面的错误对象将会导致该事件的触发：
-    // ReferenceError: x is not defined
+  // 上面的错误对象将会导致该事件的触发：
+  // ReferenceError: x is not defined
 });
 ```
 
@@ -518,11 +516,6 @@ server.on('InternalServer', function(req, res, err, callback) {
 });
 ```
 
-Inside the error event listener, it is also possible to change the serialization
-method of the error if desired. To do so, simply implement a custom
-`toString()` or `toJSON()`. Depending on the content-type and formatter being
-used for the response, one of the two serializers will be used. For example,
-given the folllwing example:
 在错误事件的侦听器内部，如果有必要的话，也可以修改错误的序列化方法。为此，只需实现一个自定义的 `toString()` 或 `toJSON()`。根据内容类型和用于响应格式化器，将使用其中之一。例如，下面给出的例子：
 
 ```js
@@ -542,8 +535,6 @@ server.on('restifyError', function(req, res, err, callback) {
 
 具有 `accept: application/json` 的请求将触发 `toJSON()` 序列化程序，而具有 `accept: text/plain` 的请求将触发 `toString()` 序列化程序。
 
-Note that the function signature for the error listener is identical for all
-emitted error events. The signature is as follows:
 请注意，错误侦听器的函数签名对于所有发出的错误事件都是相同的。签名如下：
 
 ```js
@@ -555,9 +546,6 @@ function(req, res, err, callback) { }
 -   `err` - 错误对象
 -   `callback` - 用以调用的回调函数
 
-When using this feature in conjunction with
-[restify-errors](https://github.com/restify/errors), restify will emit events
-for all of the basic http errors:
 将此功能与 [restify-errors](https://github.com/restify/errors) 一起使用时，restify 会为所有基本的 http 错误发出事件：
 
 -   `400` - `BadRequestError`
