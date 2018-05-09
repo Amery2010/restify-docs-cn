@@ -2,7 +2,7 @@
 
 通过 restify，您可以简单快速地创建一个服务器。以下代码就是一个标准的响应服务器：
 
-```js
+```javascript
 var restify = require('restify');
 
 function respond(req, res, next) {
@@ -54,7 +54,7 @@ Connection: close
 
 由于 curl 经常与 REST API 一起使用，因此 restify 的插件集里有一个插件专门用来解决 curl 中的这种特质。该插件检测用户代理是否是 curl，如果是的话，它会将连接头设置为 `close` 并移除 `Content-Length` 头。
 
-```js
+```javascript
 server.pre(restify.plugins.pre.userAgentConnection());
 ```
 
@@ -63,7 +63,7 @@ server.pre(restify.plugins.pre.userAgentConnection());
 
 像许多其他基于 Node.js 的 REST 框架一样，restify 利用 Sinatra 风格的语法来定义路由和服务这些路由的函数处理程序：
 
-```js
+```javascript
 server.get('/', function(req, res, next) {
   res.send('home')
   return next();
@@ -94,7 +94,7 @@ server.post('/foo',
 
 `pre` 处理程序链在路由之前执行。这意味着这些处理程序将针对传入的请求执行，即便它是您并未注册的路由。这可以用于记录日志和执行指标或在路由之前清理传入的请求。
 
-```js
+```javascript
 // 在路由之前删除 URL 中重复的斜杠
 server.pre(restify.plugins.dedupeSlashes());
 ```
@@ -104,7 +104,7 @@ server.pre(restify.plugins.dedupeSlashes());
 
 `use` 处理程序链式在请求被路由选择服务之后执行的。通过 `use()` 方法附加的函数处理程序将针对所有路由运行。由于 restify 以注册顺序运行处理程序，确保在定义任何路由之前，您所有的 `use()` 调用都会发生。
 
-```js
+```javascript
 server.use(function(req, res, next) {
 	console.warn('run for all routes!');
 	return next();
@@ -120,7 +120,7 @@ server.use(function(req, res, next) {
 
 在正常情况下，`next()` 通常不会使用任何参数。如果由于某种原因您想停止处理请求，您可以调用 `next(false)` 来停止处理请求：
 
-```js
+```javascript
 server.use([
   function(req, res, next) {
     if (someCondition) {
@@ -137,7 +137,7 @@ server.use([
 
 `next()` 也接受任何 `instanceof Error` 为 true 的对象，这将导致 restify 发送该错误对象作为对客户端的响应。可以从 Error 对象的 `statusCode` 属性推断出响应的状态码。如果找不到 `statusCode`，它将默认为 500。所以下面的代码片段会通过一个 http 500 发送一个序列化的错误给客户端：
 
-```js
+```javascript
 server.use(function(req, res, next) {
   return next(new Error('boom!'));
 });
@@ -146,14 +146,14 @@ server.use(function(req, res, next) {
 
 这会发送一个 http 404，因为 `NotFoundError` 构造函数为 `statusCode` 提供了一个 404 的值：
 
-```js
+```javascript
 server.use(function(req, res, next) {
 });
 ```
 
 用 Error 对象调用 `res.send()` 会产生类似的结果，这段代码会通过一个 http 500 发送一个序列化的错误给客户端：
 
-```js
+```javascript
 server.use(function(req, res, next) {
   res.send(new Error('boom!'));
   return next();
@@ -169,7 +169,7 @@ server.use(function(req, res, next) {
 
 'basic' 模式下的 restify 路由行为与 express/sinatra 非常类似，都使用 HTTP 动词与参数化资源一起来确定要运行的处理程序链。在 `req.params` 中可以找到与指定占位符关联的值。这些值在传递给您之前会被 URL 编码。
 
-```js
+```javascript
 function send(req, res, next) {
   res.send('hello ' + req.params.name);
   return next();
@@ -190,7 +190,7 @@ server.del('hello/:name', function rm(req, res, next) {
 
 您也可以传入 [RegExp](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 对象并通过 `req.params` 访问捕获组（不会以任何方式解析）：
 
-```js
+```javascript
 server.get(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/, function(req, res, next) {
   console.log(req.params[0]);
   console.log(req.params[1]);
@@ -209,7 +209,7 @@ $ curl localhost:8080/foo/my/cats/name/is/gandalf
 
 路由可以被指定为以下任意 http 动词 - `del`、`get`、`head`、`opts`、`post`、`put` 和 `patch`。
 
-```js
+```javascript
 server.get(
   '/foo/:id',
   function(req, res, next) {
@@ -228,7 +228,7 @@ server.get(
 
 如果参数化路由是由字符串（而不是正则表达式）定义的，那么您可以从服务器中的其他位置渲染它。这对于链接到其他资源的 HTTP 响应非常有用，而不必在整个代码库中对 URL 进行硬编码。路径和查询字符串参数都可以适当地进行 URL 编码。
 
-```js
+```javascript
 server.get({name: 'city', path: '/cities/:slug'}, /* ... */);
 
 // 在另一个路由中
@@ -241,7 +241,7 @@ res.send({
 
 这将返回：
 
-```js
+```javascript
 {
   "country": "Australia",
   "capital": "/cities/canberra?details=true"
@@ -253,7 +253,7 @@ res.send({
 
 大多数的 REST API 倾向于需要版本控制，并且使用 `Accept-Version` 报头来支持 [semver](http://semver.org/) 版本化，这种方式与您指定 NPM 版本依赖相同：
 
-```js
+```javascript
 var restify = require('restify');
 
 var server = restify.createServer();
@@ -296,7 +296,7 @@ $ curl -s -H 'accept-version: ~3' localhost:8080/hello/mark | json
 
 您可以通过在服务器创建时传递版本字段来设置路由的默认版本。最后，您可以通过使用数组来支持多版本的 API：
 
-```js
+```javascript
 server.get('/hello/:name' restify.plugins.conditionalHandler([
   { version: ['2.0.0', '2.1.0', '2.2.0'], handler: sendV2 }
 ]));
@@ -304,7 +304,7 @@ server.get('/hello/:name' restify.plugins.conditionalHandler([
 
 在这种情况下，您可能需要了解更多的信息，例如原始请求的版本字符串是什么，以及支持版本数组的路由的匹配版本是什么。有两种方法可用于获得此信息：
 
-```js
+```javascript
 server.get('/version/test', restify.plugins.conditionalHandler([
   {
     version: ['2.0.0', '2.1.0', '2.2.0'],
@@ -340,7 +340,7 @@ $ curl -s -H 'accept-version: <2.2.0' localhost:8080/version/test | json
 
 使用升级机制，您可以使用像 [watershed](https://github.com/jclulow/node-watershed) 这样的库来协商 WebSockets 连接。例如：
 
-```js
+```javascript
 var ws = new Watershed();
 server.get('/websocket/attach', function upgradeRoute(req, res, next) {
   if (!res.claimUpgrade) {
@@ -364,7 +364,7 @@ server.get('/websocket/attach', function upgradeRoute(req, res, next) {
 
 如果你正在使用 `res.send()`，restify 会通过查找最先注册的 `formatter` 定义来自动选择响应的内容类型。注意在上面的例子中我们没有定义任何格式化器，所以我们一直利用了 restify 附带 `application/json`、`text/plain` 和 `application/octet-stream` 格式化器的事实。您可以通过在服务器创建时传入内容类型 -> 解析器散列来添加其他格式化器到 restify：
 
-```js
+```javascript
 var server = restify.createServer({
   formatters: {
     'application/foo': function formatFoo(req, res, body) {
@@ -382,7 +382,7 @@ var server = restify.createServer({
 
 如果无法协商内容类型，则 restify 将默认使用 `application/octet-stream` 格式化器。例如，尝试发送包含未定义的格式化器的内容类型：
 
-```js
+```javascript
 server.get('/foo', function(req, res, next) {
   res.setHeader('content-type', 'text/css');
   res.send('hi');
@@ -403,7 +403,7 @@ Connection: keep-alive
 
 正如前文所述，restify 为 `json`、`text` 和 `binary` 附带了内置的格式化器。当您覆盖或附加格式化器时，“优先级”可能会发生改变；为了确保优先级设置为您想要的，您应该在您的格式化器定义中设置一个 `q-value`，这将确保按照您想要的方式进行排序：
 
-```js
+```javascript
 restify.createServer({
   formatters: {
     'application/foo; q=0.9': function formatFoo(req, res, body) {
@@ -421,7 +421,7 @@ restify.createServer({
 
 restify 响应对象保留了 Node.js [ServerResponse](http://nodejs.org/docs/latest/api/http.html#http.ServerResponse) 所有的“原始”方法。
 
-```js
+```javascript
 var body = 'hello world';
 res.writeHead(200, {
   'Content-Length': Buffer.byteLength(body),
@@ -437,7 +437,7 @@ res.end();
 
 发送 404 的示例：
 
-```js
+```javascript
 server.get('/hello/:foo', function(req, res, next) {
   // 找不到资源错误
   var err = new restify.errors.NotFoundError('oh noes!');
@@ -454,7 +454,7 @@ server.on('NotFound', function (req, res, err, cb) {
 
 为了自定义发送回客户端的错误：
 
-```js
+```javascript
 server.get('/hello/:name', function(req, res, next) {
   // 一些内部不可恢复的错误
   var err = new restify.errors.InternalServerError('oh noes!');
@@ -491,7 +491,7 @@ server.on('restifyError', function (req, res, err, cb) {
 
 这是 `InternalServerError` 的另一个示例，但是这次使用的时自定义的格式化器：
 
-```js
+```javascript
 const errs = require('restify-errors');
 
 const server = restify.createServer({
@@ -516,7 +516,7 @@ server.get('/', function(req, res, next) {
 
 一个名为 restify-errors 的模块公开了一组用于许多常见的 http 和 REST 相关错误的错误构造函数。这些构造函数可以与 `next(err)` 模式结合使用，以便轻松利用服务器的事件发射器。完整的构造函数列表可以在 [restify-errors](https://github.com/restify/errors) 代码库中查看。这里有一些例子：
 
-```js
+```javascript
 var errs = require('restify-errors');
 
 server.get('/', function(req, res, next) {
@@ -537,7 +537,7 @@ Connection: keep-alive
 
 当使用 restify-errors 时，您也可以直接调用 `res.send(err)`，restify 会自动序列化您的错误：
 
-```js
+```javascript
 var errs = require('restify-errors');
 
 server.get('/', function(req, res, next) {
@@ -559,7 +559,7 @@ Connection: keep-alive
 
 这种自动序列化行为的发生是因为 JSON 格式化器会在 Error 对象上调用 `JSON.stringify()`，并且所有的 restify-errors 都定义了一个  `toJSON` 方法。将其与没有定义 `toJSON` 的标准 Error 对象进行比较：
 
-```js
+```javascript
 server.get('/sendErr', function(req, res, next) {
   res.send(new Error('where is my msg?'));
   return next();
@@ -606,7 +606,7 @@ restify-errors 提供了继承自 HttpError 或 RestError 的构造函数。所�
 
 REST API 和 HTTP 的一个常见问题是，它们通常最终需要重载 400 和 409 来表示一堆不同的东西。在这些情况下做什么没有真正的标准，但一般而言，您希望服务器能够（安全地）解析这些东西，因此 restify 定义了一个 `RestError` 规范。`RestError` 是一个特定的 `HttpError` 类型的子类，并另外将 body 属性设置为带有 `code` 和 `message` 属性的 JavaScript 对象。例如，这是一个内置的 RestError：
 
-```js
+```javascript
 var errs = require('restify-errors');
 var server = restify.createServer();
 
@@ -712,7 +712,7 @@ _具体的使用场景可以查阅 [HTTP状态码](https://zh.wikipedia.org/wiki
 
 您也可以使用 `makeConstructor` 方法来创建自己的子类：
 
-```js
+```javascript
 var errs = require('restify-errors');
 var restify = require('restify');
 
@@ -728,7 +728,7 @@ var myErr = new errs.ZombieApocalypseError('zomg!');
 
 在 restify 中使用 [socket.io](http://socket.io/)，只要将您的 restify 服务器视为“原始”的 Node.js 服务器即可：
 
-```js
+```javascript
 var server = restify.createServer();
 var io = socketio.listen(server.server);
 

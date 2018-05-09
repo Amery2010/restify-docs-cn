@@ -1,6 +1,6 @@
 ### 目录
 
--   [请求](#请求)
+-   [Request](#Request)
     -   [accepts](#accepts)
     -   [acceptsEncoding](#acceptsencoding)
     -   [contentLength](#contentlength)
@@ -26,9 +26,9 @@
     -   [endHandlerTimer](#endhandlertimer)
     -   [connectionState](#connectionstate)
     -   [getRoute](#getroute)
--   [日志](#日志)
+-   [Log](#Log)
 
-## 请求
+## Request
 
 **扩展 http.IncomingMessage**
 
@@ -46,7 +46,7 @@
 
 _您可以传递子类型，如 html，然后使用 mime 查找表将其内部转换为 text/html：_
 
-```js
+```javascript
 // 接受：text/html
 req.accepts('html');
 // => true
@@ -99,7 +99,7 @@ req.accepts('png');
 
 **例子**
 
-```js
+```javascript
 // 传入的请求是 http://localhost:3000/foo/bar?a=1
 server.get('/:x/bar', function(req, res, next) {
 	console.warn(req.href());
@@ -125,7 +125,7 @@ server.get('/:x/bar', function(req, res, next) {
 
 **例子**
 
-```js
+```javascript
 // 传入的请求是 http://localhost:3000/foo/bar?a=1
 server.get('/:x/bar', function(req, res, next) {
 	console.warn(req.path());
@@ -141,7 +141,7 @@ server.get('/:x/bar', function(req, res, next) {
 
 **例子**
 
-```js
+```javascript
 // 传入的请求是 /foo?a=1
 req.getQuery();
 // => 'a=1'
@@ -149,7 +149,7 @@ req.getQuery();
 
 _如果使用 queryParser 插件，则可以从 req.query 获取到解析后的查询字符串：_
 
-```js
+```javascript
 // 传入的请求是 /foo?a=1
 server.use(restify.plugins.queryParser());
 req.query;
@@ -181,7 +181,7 @@ req.query;
 
 **例子**
 
-```js
+```javascript
 req.header('Host');
 req.header('HOST');
 req.header('Accept', '*\/*');
@@ -210,7 +210,7 @@ req.header('Accept', '*\/*');
 
 **例子**
 
-```js
+```javascript
 // 使用 Content-Type: text/html; charset=utf-8
 req.is('html');
 req.is('text/html');
@@ -281,7 +281,7 @@ toString 序列化
 
 _调用此函数后，您必须显式调用 endHandlerTimer()，否则时间信息将不准确。_
 
-```js
+```javascript
 server.get('/', function fooHandler(req, res, next) {
 	vasync.pipeline({
 		funcs: [
@@ -330,7 +330,7 @@ server.get('/', function fooHandler(req, res, next) {
 
 _路由信息对象结构：_
 
-```js
+```javascript
 {
   path: '/ping/:name',
   method: 'GET',
@@ -341,11 +341,11 @@ _路由信息对象结构：_
 
 返回 **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 路由
 
-## 日志
+## Log
 
 如果您使用了 [RequestLogger](/api/plugins/#requestlogger) 插件，则可以在 `req.log` 上使用子记录器：
 
-```js
+```javascript
 function myHandler(req, res, next) {
   var log = req.log;
 

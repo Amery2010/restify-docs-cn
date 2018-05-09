@@ -52,7 +52,7 @@ restify 服务器对象时您为传入的请求注册路由和处理程序的主
 
 **例子**
 
-```js
+```javascript
 var restify = require('restify');
 var server = restify.createServer();
 
@@ -90,7 +90,7 @@ server.listen(8080, function () {
 
 **例子**
 
-```js
+```javascript
 var restify = require('restify');
 var server = restify.createServer();
 
@@ -113,7 +113,7 @@ server.listen(8080, function () {
 
 _您可以这样来调用：_
 
-```js
+```javascript
 server.listen(80)
 server.listen(80, '127.0.0.1')
 server.listen('/tmp/server.sock')
@@ -143,7 +143,7 @@ server.listen('/tmp/server.sock')
 
 **例子**
 
-```js
+```javascript
 server.get('/', function (req, res, next) {
    res.send({ hello: 'world' });
    next();
@@ -222,7 +222,7 @@ server.get('/', function (req, res, next) {
 
 **例子**
 
-```js
+```javascript
 server.pre(function(req, res, next) {
   req.headers.accept = 'application/json';
   return next();
@@ -231,7 +231,7 @@ server.pre(function(req, res, next) {
 
 _例如，`pre()` 可用于删除 URL中的重复斜杠_
 
-```js
+```javascript
 server.pre(restify.pre.dedupeSlashes());
 ```
 
@@ -260,7 +260,7 @@ Express.js 路由参数前提条件所提供功能的最小端口。
 
 公开一个 API：
 
-```js
+```javascript
 server.param("user", function (req, res, next) {
   // 在这里加载用户的信息，请确保调用 next()
 });
@@ -290,13 +290,13 @@ server.param("user", function (req, res, next) {
 
 **例子**
 
-```js
+```javascript
 server.address()
 ```
 
 _输出：_
 
-```js
+```javascript
 { address: '::', family: 'IPv6', port: 8080 }
 ```
 
@@ -314,13 +314,13 @@ _输出：_
 
 **例子**
 
-```js
+```javascript
 server.getDebugInfo()
 ```
 
 _输出：_
 
-```js
+```javascript
 {
   routes: [
     {
@@ -357,13 +357,13 @@ toString()，易于服务器读取和输出。
 
 **例子**
 
-```js
+```javascript
 server.toString()
 ```
 
 _输出：_
 
-```js
+```javascript
 Accepts: application/json, text/plain, application/octet-stream,
 application/javascript
 Name: restify
@@ -394,7 +394,7 @@ Version:
 
 这个事件是在所有错误事件触发后作为通用捕获而存在。建议使用特定的错误事件来处理特定的错误，但此事件可用于度量或日志记录。如果您将其与其他错误事件一起使用，则会首先触发最具体的事件，然后才是此事件：
 
-```js
+```javascript
 server.get('/', function(req, res, next) {
   return next(new InternalServerError('boom'));
 });
@@ -419,7 +419,7 @@ server.on('restifyError', function(req, res, err, callback) {
 
 `after` 事件的函数签名如下：
 
-```js
+```javascript
 function(req, res, route, error) { }
 ```
 
@@ -436,7 +436,7 @@ function(req, res, route, error) { }
 
 `pre` 事件的函数签名如下：
 
-```js
+```javascript
 function(req, res) {}
 ```
 
@@ -451,7 +451,7 @@ function(req, res) {}
 
 `routed` 事件的函数签名如下：
 
-```js
+```javascript
 function(req, res, route) {}
 ```
 
@@ -465,7 +465,7 @@ function(req, res, route) {}
 
 如果 restify 服务器是使用 `handleUncaughtExceptions: true`，restify 将利用 [domains](https://nodejs.org/api/domain.html) 来处理处理程序链中抛出的错误。抛出的错误是显式 `throw` 语句的结果，或者由于程序员的错误（如错字或空引用）导致的结果。这些抛出的错误被域捕获，并将通过这个事件发出。例如：
 
-```js
+```javascript
 server.get('/', function(req, res, next) {
   res.send(x);  // 这会导致 ReferenceError
   return next();
@@ -481,7 +481,7 @@ server.on('uncaughtException', function(req, res, route, err) {
 
 `uncaughtException` 事件的函数签名如下：
 
-```js
+```javascript
 function(req, res, route, error) { }
 ```
 
@@ -501,7 +501,7 @@ Restify 作为一等公民处理错误。当一个错误对象被传递给 `next
 
 在将错误对象发送给客户端之前，服务器将触发使用该错误名称的事件，但不包含名称字符串中的 `Error`。例如，给定一个  `InternalServerError`，服务器将发出一个 `InternalServer` 事件。这为创建日志记录和指标，或基于错误类型的有效载荷突变创造了机会。例如：
 
-```js
+```javascript
 var errs = require('restify-errors');
 
 server.get('/', function(req, res, next) {
@@ -518,7 +518,7 @@ server.on('InternalServer', function(req, res, err, callback) {
 
 在错误事件的侦听器内部，如果有必要的话，也可以修改错误的序列化方法。为此，只需实现一个自定义的 `toString()` 或 `toJSON()`。根据内容类型和用于响应格式化器，将使用其中之一。例如，下面给出的例子：
 
-```js
+```javascript
 server.on('restifyError', function(req, res, err, callback) {
   err.toJSON = function customToJSON() {
     return {
@@ -537,7 +537,7 @@ server.on('restifyError', function(req, res, err, callback) {
 
 请注意，错误侦听器的函数签名对于所有发出的错误事件都是相同的。签名如下：
 
-```js
+```javascript
 function(req, res, err, callback) { }
 ```
 
@@ -622,7 +622,7 @@ Restify 还会发出以下事件：
 
 **例子**
 
-```js
+```javascript
 // 一个静态路由
 server.get('/foo', function(req, res, next) {});
 // 一个参数化的路由
