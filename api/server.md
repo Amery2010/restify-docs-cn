@@ -40,7 +40,7 @@ restify 服务器对象时您为传入的请求注册路由和处理程序的主
     -   `options.url` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** 一旦 listen() 被调用，这会被填入服务器的运行地址。
     -   `options.certificate` **([String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Buffer](https://nodejs.org/api/buffer.html))?** 如果要创建 HTTPS 服务器，请传入 PEM 编码的证书和密钥。
     -   `options.key` **([String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Buffer](https://nodejs.org/api/buffer.html))?** 如果要创建 HTTPS 服务器，请传入 PEM 编码的证书和密钥。
-    -   `options.formatters` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 为 `res.send()` 自定义响应格式化器。
+    -   `options.formatters` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 为 `res.send()` 自定义响应格式化程序。
     -   `options.handleUncaughtExceptions` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 当为 `true` 时，restify 将使用一个域来捕获和响应处理程序堆栈中发生的任何未捕获的异常。[bunyan](https://github.com/trentm/node-bunyan) 实例。响应报头，默认为 `restify`。传递空字符串可以取消设置的报头。带有显著的负面性能影响。(可选，默认为 `false`)
     -   `options.spdy` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 可以被 [node-spdy](https://github.com/indutny/node-spdy) 接受的任何选项参数。
     -   `options.http2` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 可以被  [http2.createSecureServer](https://nodejs.org/api/http2.html) 接受的任何选项参数。
@@ -77,7 +77,7 @@ server.listen(8080, function () {
     -   `options.url` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** 一旦 listen() 被调用，这会被填入服务器的运行地址。
     -   `options.certificate` **([String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Buffer](https://nodejs.org/api/buffer.html))?** 如果要创建 HTTPS 服务器，请传入 PEM 编码的证书和密钥。
     -   `options.key` **([String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Buffer](https://nodejs.org/api/buffer.html))?** 如果要创建 HTTPS 服务器，请传入 PEM 编码的证书和密钥。
-    -   `options.formatters` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 为 `res.send()` 自定义响应格式化器。
+    -   `options.formatters` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 为 `res.send()` 自定义响应格式化程序。
     -   `options.handleUncaughtExceptions` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 当为 `true` 时，restify 将使用一个域来捕获和响应处理程序堆栈中发生的任何未捕获的异常。[bunyan](https://github.com/trentm/node-bunyan) 实例。响应报头，默认为 `restify`。传递空字符串可以取消设置的报头。带有显著的负面性能影响。(可选，默认为 `false`)
     -   `options.spdy` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 可以被 [node-spdy](https://github.com/indutny/node-spdy) 接受的任何选项参数。
     -   `options.http2` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 可以被  [http2.createSecureServer](https://nodejs.org/api/http2.html) 接受的任何选项参数。
@@ -516,7 +516,7 @@ server.on('InternalServer', function(req, res, err, callback) {
 });
 ```
 
-在错误事件的侦听器内部，如果有必要的话，也可以修改错误的序列化方法。为此，只需实现一个自定义的 `toString()` 或 `toJSON()`。根据内容类型和用于响应格式化器，将使用其中之一。例如，下面给出的例子：
+在错误事件的侦听器内部，如果有必要的话，也可以修改错误的序列化方法。为此，只需实现一个自定义的 `toString()` 或 `toJSON()`。根据内容类型和用于响应格式化程序，将使用其中之一。例如，下面给出的例子：
 
 ```javascript
 server.on('restifyError', function(req, res, err, callback) {

@@ -362,7 +362,7 @@ server.get('/websocket/attach', function upgradeRoute(req, res, next) {
 
 ## 内容协商
 
-如果你正在使用 `res.send()`，restify 会通过查找最先注册的 `formatter` 定义来自动选择响应的内容类型。注意在上面的例子中我们没有定义任何格式化器，所以我们一直利用了 restify 附带 `application/json`、`text/plain` 和 `application/octet-stream` 格式化器的事实。您可以通过在服务器创建时传入内容类型 -> 解析器散列来添加其他格式化器到 restify：
+如果你正在使用 `res.send()`，restify 会通过查找最先注册的 `formatter` 定义来自动选择响应的内容类型。注意在上面的例子中我们没有定义任何格式化程序，所以我们一直利用了 restify 附带 `application/json`、`text/plain` 和 `application/octet-stream` 格式化程序的事实。您可以通过在服务器创建时传入内容类型 -> 解析器散列来添加其他格式化程序到 restify：
 
 ```javascript
 var server = restify.createServer({
@@ -380,7 +380,7 @@ var server = restify.createServer({
 });
 ```
 
-如果无法协商内容类型，则 restify 将默认使用 `application/octet-stream` 格式化器。例如，尝试发送包含未定义的格式化器的内容类型：
+如果无法协商内容类型，则 restify 将默认使用 `application/octet-stream` 格式化程序。例如，尝试发送包含未定义的格式化程序的内容类型：
 
 ```javascript
 server.get('/foo', function(req, res, next) {
@@ -401,7 +401,7 @@ Date: Thu, 02 Jun 2016 06:50:54 GMT
 Connection: keep-alive
 ```
 
-正如前文所述，restify 为 `json`、`text` 和 `binary` 附带了内置的格式化器。当您覆盖或附加格式化器时，“优先级”可能会发生改变；为了确保优先级设置为您想要的，您应该在您的格式化器定义中设置一个 `q-value`，这将确保按照您想要的方式进行排序：
+正如前文所述，restify 为 `json`、`text` 和 `binary` 附带了内置的格式化程序。当您覆盖或附加格式化程序时，“优先级”可能会发生改变；为了确保优先级设置为您想要的，您应该在您的格式化程序定义中设置一个 `q-value`，这将确保按照您想要的方式进行排序：
 
 ```javascript
 restify.createServer({
@@ -463,7 +463,7 @@ server.get('/hello/:name', function(req, res, next) {
 
 server.on('InternalServer', function (req, res, err, cb) {
   // 默认情况下，restify 通常会根据内容协商将 Error 对象渲染为纯文本或 JSON。默认的文本
-  // 格式化器和 JSON 格式化器非常简单，只需要在传递给 res.send 的对象上调用 toString()
+  // 格式化程序和 JSON 格式化程序非常简单，只需要在传递给 res.send 的对象上调用 toString()
   // 和 toJSON() 就可以了，在当前例子中指代错误对象。所以要自定义当错误发生时发送会客户端
   // 的内容，您需要执行如下操作：
 
@@ -489,7 +489,7 @@ server.on('restifyError', function (req, res, err, cb) {
 });
 ```
 
-这是 `InternalServerError` 的另一个示例，但是这次使用的时自定义的格式化器：
+这是 `InternalServerError` 的另一个示例，但是这次使用的时自定义的格式化程序：
 
 ```javascript
 const errs = require('restify-errors');
@@ -557,7 +557,7 @@ Connection: keep-alive
 {"code":"Gone","message":"gone girl"}
 ```
 
-这种自动序列化行为的发生是因为 JSON 格式化器会在 Error 对象上调用 `JSON.stringify()`，并且所有的 restify-errors 都定义了一个  `toJSON` 方法。将其与没有定义 `toJSON` 的标准 Error 对象进行比较：
+这种自动序列化行为的发生是因为 JSON 格式化程序会在 Error 对象上调用 `JSON.stringify()`，并且所有的 restify-errors 都定义了一个  `toJSON` 方法。将其与没有定义 `toJSON` 的标准 Error 对象进行比较：
 
 ```javascript
 server.get('/sendErr', function(req, res, next) {
