@@ -167,46 +167,35 @@ RFC 2616 Fielding 等
 
 ### acceptParser
 
-Parses the `Accept` header, and ensures that the server can respond to what
-the client asked for. In almost all cases passing in `server.acceptable` is
-all that's required, as that's an array of content types the server knows
-how to respond to (with the formatters you've registered). If the request is
-for a non-handled type, this plugin will return a `NotAcceptableError` (406).
+解析 `Accept` 头，并确保服务器可以响应客户要求的内容。为了让服务器知道如何响应一组内容类型（使用您注册的格式化程序），在几乎所有传递 `server.acceptable` 的情况下都是必要的。如果请求是一个无法处理的类型，则该插件会返回 `NotAcceptableError` (406)。
 
-Note you can get the set of types allowed from a restify server by doing
-`server.acceptable`.
+请注意，您可以通过执行 `server.acceptable` 来获取 restify 服务器允许的一组类型。
 
-**Parameters**
+**参数**
 
--   `accepts` **[Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)>** array of accept types.
+-   `accepts` **[Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)>** 可接受类型的数组。
 
-**Examples**
+**例子**
 
 ```javascript
 server.use(restify.plugins.acceptParser(server.acceptable));
 ```
 
--   Throws **NotAcceptableError** 
+-   抛出 **NotAcceptableError** 
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** restify handler.
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** restify 处理程序。
 
 ### authorizationParser
 
-Parses out the `Authorization` header as best restify can.
-Currently only HTTP Basic Auth and
-[HTTP Signature](https://github.com/joyent/node-http-signature)
-schemes are supported.
+restify 会以最佳方式解析 `Authorization` 头。目前只支持 HTTP Basic Auth 以及 [HTTP Signature](https://github.com/joyent/node-http-signature) 格式。
 
-**Parameters**
+**参数**
 
--   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** an optional options object that is
-                                   passed to http-signature
+-   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 一个传递给 http-signature 的可选选项对象
 
-**Examples**
+**例子**
 
-_Subsequent handlers will see `req.authorization`, which looks like above.`req.username` will also be set, and defaults to 'anonymous'.  If the scheme
-is unrecognized, the only thing available in `req.authorization` will be
-`scheme` and `credentials` - it will be up to you to parse out the rest._
+_后续的处理程序将会看到 `req.authorization`，看起来像上文所示。`req.username` 也将被设置，并且默认为 'anonymous'。如果该格式无法识别，那么 `req.authorization` 中唯一可用的格式将是 `scheme` 和 `credentials` - 其余内容将由您来决定如何处理。_
 
 ```javascript
 {
@@ -219,285 +208,202 @@ is unrecognized, the only thing available in `req.authorization` will be
 }
 ```
 
--   Throws **InvalidArgumentError** 
+-   抛出 **InvalidArgumentError** 
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### dateParser
 
-Parses out the HTTP Date header (if present) and checks for clock skew.
-If the header is invalid, a `InvalidHeaderError` (`400`) is returned.
-If the clock skew exceeds the specified value,
-a `RequestExpiredError` (`400`) is returned.
-Where expired means the request originated at a time
-before (`$now - $clockSkew`).
-The default clockSkew allowance is 5m (thanks
-Kerberos!)
+解析 HTTP Date 头（如果存在的话）并检查时钟偏斜。
+如果报头无效，则返回 `InvalidHeaderError` (`400`)。
+过期意味着请求始于（`$now - $clockSkew`）之前的时间。
+clockSkew 的默认配额是 5 分钟
 
-**Parameters**
+**参数**
 
--   `clockSkew` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** allowed clock skew in seconds. (optional, default `300`)
+-   `clockSkew` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 允许时钟偏斜秒数。(可选，默认 300)
 
-**Examples**
+**例子**
 
 ```javascript
-// Allows clock skew of 1m
+// 允许时钟偏斜 1 分钟
 server.use(restify.plugins.dateParser(60));
 ```
 
--   Throws **RequestExpiredError** 
--   Throws **InvalidHeaderError** 
+-   抛出 **RequestExpiredError** 
+-   抛出 **InvalidHeaderError** 
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** restify handler.
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** restify 处理程序。
 
 ### queryParser
 
-Parses the HTTP query string (i.e., `/foo?id=bar&name=mark`).
-If you use this, the parsed content will always be available in `req.query`,
-additionally params are merged into `req.params`.
-You can disable by passing in `mapParams: false` in the options object.
+解析 HTTP 查询字符串（如，`/foo?id=bar&name=mark`）。
+如果您使用该插件，解析的内容在 `req.query` 中始终可用，额外的参数会被合并到 `req.params` 中。
+您可以通过在选项对象中传递 `mapParams: false` 来禁用它。
 
-Many options correspond directly to option defined for the underlying
-[`qs.parse`](https://github.com/ljharb/qs).
+许多选项直接对应于由 [`qs.parse`](https://github.com/ljharb/qs) 底层定义的选项。
 
-**Parameters**
+**参数**
 
--   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** an options object
-    -   `options.mapParams` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** disable passing (optional, default `true`)
-    -   `options.mapParams` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Copies parsed query parameters
-        into`req.params`. (optional, default `false`)
-    -   `options.overrideParams` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only applies when if
-        mapParams true.
-        When true, will stomp on req.params field when existing value is found. (optional, default `false`)
-    -   `options.allowDots` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Transform `?foo.bar=baz` to a
-        nested object: `{foo: {bar: 'baz'}}`. (optional, default `false`)
-    -   `options.arrayLimit` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** Only transform `?a[$index]=b`
-        to an array if `$index` is less than `arrayLimit`. (optional, default `20`)
-    -   `options.depth` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** The depth limit for parsing
-        nested objects, e.g. `?a[b][c][d][e][f][g][h][i]=j`. (optional, default `5`)
-    -   `options.parameterLimit` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** Maximum number of query
-        params parsed. Additional params are silently dropped. (optional, default `1000`)
-    -   `options.parseArrays` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Whether to parse
-        `?a[]=b&a[1]=c` to an array, e.g. `{a: ['b', 'c']}`. (optional, default `true`)
-    -   `options.plainObjects` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Whether `req.query` is a
-        "plain" object -- does not inherit from `Object`.
-        This can be used to allow query params whose names collide with Object
-        methods, e.g. `?hasOwnProperty=blah`. (optional, default `false`)
-    -   `options.strictNullHandling` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** If true, `?a&b=`
-        results in `{a: null, b: ''}`. Otherwise, `{a: '', b: ''}`. (optional, default `false`)
+-   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 一个选项对象
+    -   `options.mapParams` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 拷贝已解析的查询参数到 `req.params` 中。(可选，默认为 `false`)
+    -   `options.overrideParams` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 仅当 mapParams 为 true 时才适用。如果为 true，则会在找到已有的值时覆盖 req.params 字段。(可选，默认为 `false`)
+    -   `options.allowDots` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 转换 `?foo.bar=baz` 为一个嵌套的对象：`{foo: {bar: 'baz'}}`。(可选，默认为 `false`)
+    -   `options.arrayLimit` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 只转换 `?a[$index]=b` 中 `$index` 少于 `arrayLimit` 的数组。(可选，默认为 `20`)
+    -   `options.depth` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 解析嵌套对象的深度限制，如 `?a[b][c][d][e][f][g][h][i]=j`。(可选，默认为 `5`)
+    -   `options.parameterLimit` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 查询参数被解析的最大数值。额外的参数被静默丢弃。(可选，默认为 `1000`)
+    -   `options.parseArrays` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 是否将 `?a[]=b&a[1]=c` 解析为一个数组，如 `{a: ['b', 'c']}`。(可选，默认为 `true`)
+    -   `options.plainObjects` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** `req.query` 是否为“普通”对象 - 不从 Object 继承。这可以用来允许名称与 Object 方法相冲突的查询参数，如，`?hasOwnProperty=blah`。(可选，默认为 `false`)
+    -   `options.strictNullHandling` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 如果为 true，`?a&b=`的结果为 `{a: null, b: ''}`。否则，为 `{a: '', b: ''}`。(可选，默认为 `false`)
 
-**Examples**
+**例子**
 
 ```javascript
 server.use(restify.plugins.queryParser({ mapParams: false }));
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### jsonp
 
-Parses the jsonp callback out of the request.
-Supports checking the query string for `callback` or `jsonp` and ensuring
-that the content-type is appropriately set if JSONP params are in place.
-There is also a default `application/javascript` formatter to handle this.
+从请求中解析 jsonp 回调。
+支持检测 `callback` 或 `jsonp` 的查询字符串，并确保存在 JSONP 参数的情况下，设置合适的内容类型。
+此外，默认使用 `application/javascript` 格式化程序处理。
 
-You _should_ set the `queryParser` plugin to run before this, but if you
-don't this plugin will still parse the query string properly.
+您_应该_在这之前运行 `queryParser` 插件，但是如果您不这样做，这个插件仍可以正确解析查询字符串。
 
-**Examples**
+**例子**
 
 ```javascript
 var server = restify.createServer();
 server.use(restify.plugins.jsonp());
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### bodyParser
 
-Blocks your chain on reading and parsing the HTTP request body.  Switches on
-`Content-Type` and does the appropriate logic.  `application/json`,
-`application/x-www-form-urlencoded` and `multipart/form-data` are currently
-supported.
+在读取和解析 HTTP 请求主体时阻塞您的链。依据 `Content-Type` 执行相应的逻辑。
+目前支持 `application/json`、`application/x-www-form-urlencoded` 和 `multipart/form-data`。
 
-Parses `POST` bodies to `req.body`. automatically uses one of the following
-parsers based on content type:
+解析 `POST` 主体为 `req.body`。根据内容类型自动使用以下解析程序之一：
 
--   `urlEncodedBodyParser(options)` - parses url encoded form bodies
--   `jsonBodyParser(options)` - parses JSON POST bodies
--   `multipartBodyParser(options)` - parses multipart form bodies
+-   `urlEncodedBodyParser(options)` - 解析 URL 编码的表单体
+-   `jsonBodyParser(options)` - 解析 JSON 格式的 POST 主体
+-   `multipartBodyParser(options)` - 解析多段表单体
 
-All bodyParsers support the following options:
+所有 bodyParsers 都支持以下选项：
 
--   `options.mapParams` - default false. copies parsed post body values onto
-    req.params
--   `options.overrideParams` - default false. only applies when if
-    mapParams true. when true, will stomp on req.params value when
-    existing value is found.
+-   `options.mapParams` - 默认为 false。拷贝解析后的 post 正文内容到 req.params。
+-   `options.overrideParams` - 默认为 false。仅当 mapParams 为 true 时才适用。如果为 true，则会在找到已有的值时覆盖 req.params 字段。
 
-**Parameters**
+**参数**
 
--   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** an option object
-    -   `options.maxBodySize` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** The maximum size in bytes allowed in
-        the HTTP body. Useful for limiting clients from hogging server memory.
-    -   `options.mapParams` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** if `req.params` should be filled with
-        parsed parameters from HTTP body.
-    -   `options.mapFiles` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** if `req.params` should be filled with
-        the contents of files sent through a multipart request.
-        [formidable](https://github.com/felixge/node-formidable) is used internally
-        for parsing, and a file is denoted as a multipart part with the `filename`
-        option set in its `Content-Disposition`. This will only be performed if
-        `mapParams` is true.
-    -   `options.overrideParams` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** if an entry in `req.params`
-        should be overwritten by the value in the body if the names are the same.
-        For instance, if you have the route `/:someval`,
-        and someone posts an `x-www-form-urlencoded`
-        Content-Type with the body `someval=happy` to `/sad`, the value will be
-        `happy` if `overrideParams` is `true`, `sad` otherwise.
-    -   `options.multipartHandler` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** a callback to handle any
-        multipart part which is not a file.
-        If this is omitted, the default handler is invoked which may
-        or may not map the parts into `req.params`, depending on
-        the `mapParams`-option.
-    -   `options.multipartFileHandler` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** a callback to handle any
-        multipart file.
-        It will be a file if the part has a `Content-Disposition` with the
-        `filename` parameter set. This typically happens when a browser sends a
-        form and there is a parameter similar to `<input type="file" />`.
-        If this is not provided, the default behaviour is to map the contents
-        into `req.params`.
-    -   `options.keepExtensions` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** if you want the uploaded
-        files to include the extensions of the original files
-        (multipart uploads only).
-        Does nothing if `multipartFileHandler` is defined.
-    -   `options.uploadDir` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** Where uploaded files are
-        intermediately stored during transfer before the contents is mapped
-        into `req.params`.
-        Does nothing if `multipartFileHandler` is defined.
-    -   `options.multiples` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** if you want to support html5 multiple
-        attribute in upload fields.
-    -   `options.hash` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** If you want checksums calculated for
-        incoming files, set this to either `sha1` or `md5`.
-    -   `options.rejectUnknown` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** Set to `true` if you want to end
-        the request with a `UnsupportedMediaTypeError` when none of
-        the supported content types was given.
-    -   `options.requestBodyOnGet` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**  Parse body of a GET
-        request. (optional, default `false`)
-    -   `options.reviver` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** `jsonParser` only. If a function,
-        this prescribes how the value originally produced by parsing is transformed,
-        before being returned. For more information check out
-        `JSON.parse(text[, reviver])`.
-    -   `options.maxFieldsSize` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** `multipartParser`
-        only.
-        Limits the amount of memory all fields together (except files)
-        can allocate in bytes.
-        The default size is `2 * 1024 * 1024` bytes _(2MB)_. (optional, default `2*1024*1024`)
+-   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 一个选项对象。
+    -   `options.maxBodySize` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** 允许 HTTP 主体的最大字节数。用于限制客户端占用的服务器内存。
+    -   `options.mapParams` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** 是否 `req.params` 应该填充来自 HTTP 主体的已解析参数。
+    -   `options.mapFiles` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** 是否 `req.params` 应该填充通过多段请求发送的文件的内容。内部使用 [formidable](https://github.com/felixge/node-formidable) 进行解析，并且文件被表示为 `Content-Disposition` 中 `filename` 选项集的多段部分。这只会在 `mapParams` 为 true 的情况下执行。
+    -   `options.overrideParams` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** 是否 `req.params` 中的条目应该被主体中的值覆盖（如果名称相同的话）。例如，如果您有名为 `/:someval` 的路由，并有人发了一个 `x-www-form-urlencoded` 内容格式的主体内容 `someval=happy` 到路由 `/sad`，如果 `overrideParams` 为 `true`，则该值为 `happy`，否则为 `sad`。
+    -   `options.multipartHandler` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** 一个用来处理任何不是文件的多段部分的回调函数。如果省略，则调用缺省处理程序，这可能会或可能不会将这些部分映射到 `req.params` 中，具体取决于 `mapParams` 选项。
+    -   `options.multipartFileHandler` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** 一个用来处理任何是文件的多段部分的回调函数。它是不是文件取决于该部分的 `Content-Disposition` 是否具有 `filename` 参数集。这通常发生在浏览器发送表单时，并且有一个类似于 `<input type="file" />` 的参数。如果没有提供，默认行为是将内容映射到 `req.params`。
+    -   `options.keepExtensions` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** 如果您希望上传的文件包含原始文件的扩展名（仅限分段上传）。如果定义了 `multipartFileHandler`，则什么也不做。
+    -   `options.uploadDir` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** 在内容被映射到  `req.params` 之前，上传文件在传输过程中被中间存储的地方。如果定义了 `multipartFileHandler`，则什么也不做。
+    -   `options.multiples` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** 如果您想要支持上传字段中 html5 的多属性。
+    -   `options.hash` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** 如果您想要为传入文件校验计算，请将其设置为 `sha1` 或 `md5`。
+    -   `options.rejectUnknown` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** 如果您想在没有提供任何支持的内容类型时使用 `UnsupportedMediaTypeError` 结束请求，则设置为 `true`。
+    -   `options.requestBodyOnGet` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**  解析GET请求的主体。(可选，默认为 `false`)
+    -   `options.reviver` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** 仅限 `jsonParser`。如果是一个函数，则规定了在返回之前，最初由解析产生的值如何转换。想要了解更多信息，请查看 `JSON.parse(text[, reviver])`。
+    -   `options.maxFieldsSize` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 仅限 `multipartParser`。限制所有字段的内存量（文件除外）可以按字节分配。默认大小是 `2 * 1024 * 1024` 字节 _(2MB)_。(可选，默认为 `2*1024*1024`)
 
-**Examples**
+**例子**
 
 ```javascript
 server.use(restify.plugins.bodyParser({
-    maxBodySize: 0,
-    mapParams: true,
-    mapFiles: false,
-    overrideParams: false,
-    multipartHandler: function(part) {
-        part.on('data', function(data) {
-          // do something with the multipart data
-        });
-    },
-   multipartFileHandler: function(part) {
-        part.on('data', function(data) {
-          // do something with the multipart file data
-        });
-    },
-    keepExtensions: false,
-    uploadDir: os.tmpdir(),
-    multiples: true,
-    hash: 'sha1',
-    rejectUnknown: true,
-    requestBodyOnGet: false,
-    reviver: undefined,
-    maxFieldsSize: 2 * 1024 * 1024
+  maxBodySize: 0,
+  mapParams: true,
+  mapFiles: false,
+  overrideParams: false,
+  multipartHandler: function(part) {
+    part.on('data', function(data) {
+      // 对多段数据做些处理
+    });
+  },
+  multipartFileHandler: function(part) {
+    part.on('data', function(data) {
+      // 对多段文件数据做些处理
+    });
+  },
+  keepExtensions: false,
+  uploadDir: os.tmpdir(),
+  multiples: true,
+  hash: 'sha1',
+  rejectUnknown: true,
+  requestBodyOnGet: false,
+  reviver: undefined,
+  maxFieldsSize: 2 * 1024 * 1024
  }));
 ```
 
--   Throws **UnsupportedMediaTypeError** 
+-   抛出 **UnsupportedMediaTypeError** 
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### requestLogger
 
-Sets up a child [bunyan](https://github.com/trentm/node-bunyan) logger with
-the current request id filled in, along with any other parameters you define.
+设置一个子 [bunyan](https://github.com/trentm/node-bunyan) 记录器，写入当前的请求 ID 以及您定义的任何其他参数。
 
-You can pass in no options to this, in which case only the request id will be
-appended, and no serializers appended (this is also the most performant); the
-logger created at server creation time will be used as the parent logger.
-This logger can be used normally, with [req.log](#request-api).
+您可以不添加任何选项，在这种情况下，只会附加请求 ID，并且不会附加序列化程序（这也是最高性能的做法）；在服务器创建时创建的记录器将被用作父记录器。这个记录器可以与 [req.log](/api/request/#log) 共用。
 
-This plugin does _not_ log each individual request. Use the Audit Logging
-plugin or a custom middleware for that use.
+这个插件_不_记录每个单独的请求。请使用审计日志插件或用于该用途的自定义中间件。
 
-**Parameters**
+**参数**
 
--   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** an options object
-    -   `options.headers` **[Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)?** A list of headers to transfer from
-                                         the request to top level props on the log.
+-   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 一个选项对象
+    -   `options.headers` **[Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)?** 要从请求传输到日志中的顶层属性的报头列表。
 
-**Examples**
+**例子**
 
 ```javascript
 server.use(restify.plugins.requestLogger({
-    properties: {
-        foo: 'bar'
-    },
-    serializers: {...}
+  properties: {
+    foo: 'bar'
+  },
+  serializers: {...}
 }));
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### gzipResponse
 
-If the client sends an `accept-encoding: gzip` header (or one with an
-appropriate q-val), then the server will automatically gzip all
-response data.
-Note that only `gzip` is supported, as this is most widely supported by
-clients in the wild.
-This plugin will overwrite some of the internal streams, so any
-calls to `res.send`, `res.write`, etc., will be compressed.  A side effect is
-that the `content-length` header cannot be known, and so
-`transfer-encoding: chunked` will _always_ be set when this is in effect.
-This plugin has no impact if the client does not send
-`accept-encoding: gzip`.
+如果客户端发送了一个 `accept-encoding: gzip` 头（或一个带有适当 q-val 的头），那么服务器将自动 gzip 所有响应数据。请注意，只有支持 `gzip` 的客户端可用。
+这个插件会覆盖一些内部流，所以任何对 `res.send`、`res.write` 等的调用都会被压缩。副作用是无法获知报头的 `content-length`，因此将在此插件生效时，_始终_设置 `transfer-encoding: chunked`。如果客户端没有发送 `accept-encoding: gzip`，则该插件没有影响。
 
 <https://github.com/restify/node-restify/issues/284>
 
-**Parameters**
+**参数**
 
--   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** an options object, see: zlib.createGzip
+-   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?**一个选项对象，详见 zlib.createGzip
 
-**Examples**
+**例子**
 
 ```javascript
 server.use(restify.plugins.gzipResponse());
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### serveStatic
 
-Serves static files.
+提供静态文件。
 
-**Parameters**
+**参数**
 
--   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** an options object
+-   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 一个选项对象
 
-**Examples**
+**例子**
 
-_The serveStatic module is different than most of the other plugins, in that
-it is expected that you are going to map it to a route, as below:_
+_serveStatic 模块与大多数其他插件不同，因为预期您将它映射到路由上，如下所示：_
 
 ```javascript
 server.get('/zh-CN/docs/current/*', restify.plugins.serveStatic({
@@ -506,26 +412,10 @@ server.get('/zh-CN/docs/current/*', restify.plugins.serveStatic({
 }));
 ```
 
-_The above `route` and `directory` combination will serve a file located in
-`./documentation/v1/zh-CN/docs/current/index.html` when you attempt to hit
-`http://localhost:8080/zh-CN/docs/current/`. If you want the serveStatic module to
-serve files directly from the `/documentation/v1` directory
-(and not append the request path `/zh-CN/docs/current/`),
-you can set the `appendRequestPath` option to `false`, and the served file
-would be `./documentation/v1/index.html`, in the previous example.The plugin will enforce that all files under `directory` are served.
-The `directory` served is relative to the process working directory.
-You can also provide a `default` parameter such as index.html for any
-directory that lacks a direct file match.
-You can specify additional restrictions by passing in a `match` parameter,
-which is just a `RegExp` to check against the requested file name.
-Additionally, you may set the `charSet` parameter, which will append a
-character set to the content-type detected by the plugin.
-For example, `charSet: 'utf-8'` will result in HTML being served with a
-`Content-Type` of `text/html; charset=utf-8`.
-Lastly, you can pass in a `maxAge` numeric, which will set the
-`Cache-Control` header. Default is `3600` (1 hour).An additional option for serving a static file is to pass `file` in to the
-serveStatic method as an option. The following will serve index.html from
-the documentation/v1/ directory anytime a client requests `/home/`._
+_当您尝试点击 `http://localhost:8080/zh-CN/docs/current/` 时，上述 `route` 和 `directory` 组合将提供位于 `./documentation/v1/zh-CN/docs/current/index.html` 中的文件。如果您想要 serveStatic 模块直接从 `/documentation/v1`目录提供文件（而不是附加请求路径 `/zh-CN/docs/current/`），您可以将 `appendRequestPath` 选项设置为 `false` 则在前面的例子中提供的文件是 `./documentation/v1/index.html`。这个插件会强制提供 `directory` 下的所有文件。
+所提供的 `directory` 是相对于进程工作目录而言的。您还可以为缺少直接文件匹配的任何目录提供 `default` 参数，如，index.html。您可以通过传入 `match` 参数来指定其他限制，如，使用 `RegExp` 来检查请求的文件名。
+另外，您可以设置 `charSet` 参数，它会把一个字符集附加到插件检测到的内容类型上。例如，`charSet: 'utf-8'` 会导致 HTML 被提供一个 `text/html; charset=utf-8` 的 `Content-Type`。
+最后，您可以传入 `maxAge` 数值，它将被设置 `Cache-Control` 头的值。默认是 `3600` (1 小时)。提供静态文件的附加选项是将 `file` 作为选项传递给 serveStatic 方法。在客户端请求 `/home/` 时，以下将从 `documentation/v1/` 目录提供 index.html。_
 
 ```javascript
 server.get('/home/*', restify.plugins.serveStatic({
@@ -539,11 +429,11 @@ server.get('/home/([a-z]+[.]html)', restify.plugins.serveStatic({
 }));
 ```
 
--   Throws **MethodNotAllowedError** \|
--   Throws **NotAuthorizedError** 
--   Throws **ResourceNotFoundError** 
+-   抛出 **MethodNotAllowedError** \|
+-   抛出 **NotAuthorizedError** 
+-   抛出 **ResourceNotFoundError** 
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### throttle
 
