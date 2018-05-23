@@ -21,7 +21,7 @@
     -   [serveStatic](#servestatic)
     -   [throttle](#throttle)
     -   [requestExpiry](#requestexpiry)
-        -   [Using an external storage mechanism for key/bucket mappings.](#using-an-external-storage-mechanism-for-keybucket-mappings)
+        -   [使用 key/bucket 映射的外部存储机制。](#使用-keybucket-映射的外部存储机制)
     -   [inflightRequestThrottle](#inflightrequestthrottle)
     -   [cpuUsageThrottle](#cpuusagethrottle)
     -   [conditionalHandler](#conditionalhandler)
@@ -437,168 +437,108 @@ server.get('/home/([a-z]+[.]html)', restify.plugins.serveStatic({
 
 ### throttle
 
-Creates an API rate limiter that can be plugged into the standard
-restify request handling pipeline.
+创建一个可以插入到标准的 restify 请求处理管道的 API 限速器。
 
-`restify` ships with a fairly comprehensive implementation of
-[Token bucket](http://en.wikipedia.org/wiki/Token_bucket), with the ability
-to throttle on IP (or x-forwarded-for) and username (from `req.username`).
-You define "global" request rate and burst rate, and you can define
-overrides for specific keys.
-Note that you can always place this on per-URL routes to enable
-different request rates to different resources (if for example, one route,
-like `/my/slow/database` is much easier to overwhlem
-than `/my/fast/memcache`).
+`restify` 提供了相当全面的 [Token bucket](http://en.wikipedia.org/wiki/Token_bucket) 实现，能够对 IP（或x-forwarded-for）和用户名（来自 `req.username`）进行节流。您可以定义“全局”的请求速率和突发速率，并且可以覆盖定义特定的键。
+请注意，您始终可以将此置于每个 URL 路由中，以针对不同的资源启用不同的请求速率（例如，在一个路由中，`/my/slow/database` 更容易超过 `/my/fast/memcache`）。
 
-If a client has consumed all of their available rate/burst, an HTTP response
-code of `429`
-[Too Many Requests](http://tools.ietf.org/html/draft-nottingham-http-new-status-03#section-4)
-is returned.
+如果客户端已经消耗了所有可用速率/突发，则会返回 HTTP 响应代码 `429` [Too Many Requests](http://tools.ietf.org/html/draft-nottingham-http-new-status-03#section-4)。
 
-This throttle gives you three options on which to throttle:
-username, IP address and 'X-Forwarded-For'. IP/XFF is a /32 match,
-so keep that in mind if using it.  Username takes the user specified
-on req.username (which gets automagically set for supported Authorization
-types; otherwise set it yourself with a filter that runs before this).
+该节流插件提供了三个节流选项：用户名、IP 地址和 'X-Forwarded-For'。如果使用 IP/XFF，请记住它是一个 /32 匹配。用户名需要用户在 req.username 上指定（它自动设置为支持的授权类型，否则自己用之前运行的过滤器设置它）。
 
-In both cases, you can set a `burst` and a `rate` (in requests/seconds),
-as an integer/float.  Those really translate to the `TokenBucket`
-algorithm, so read up on that (or see the comments above...).
+在这两种情况下，您都可以设置一个整数/浮点数的 `burst` 和 `rate`（以 '请求/秒' 为单位）。那些确实转化成了 `TokenBucket` 算法，所以请阅读（或参阅上面的评论...）。
 
-In either case, the top level options burst/rate set a blanket throttling
-rate, and then you can pass in an `overrides` object with rates for
-specific users/IPs.  You should use overrides sparingly, as we make a new
-TokenBucket to track each.
+无论哪种情况，顶层选项参数的突发/速率都会设置一个总限制速率，然后您可以传入具有特定用户/IP速率的 `overrides` 对象。您应该谨慎使用覆盖，因为我们会制作一个新的 TokenBucket 来跟踪每个覆盖。
 
-On the `options` object ip and username are treated as an XOR.
+在 `options` 对象上，ip 和 username 互斥。
 
 **Parameters**
 
--   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** required options with:
-    -   `options.burst` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** burst
-    -   `options.rate` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** rate
-    -   `options.ip` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** ip
-    -   `options.username` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** username
-    -   `options.xff` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** xff
-    -   `options.setHeaders` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Set response headers for rate,
-                                      limit (burst) and remaining. (optional, default `false`)
-    -   `options.overrides` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** overrides
-    -   `options.tokensTable` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** a storage engine this plugin will
-                                     use to store throttling keys -> bucket mappings.
-                                     If you don't specify this, the default is to
-                                     use an in-memory O(1) LRU, with 10k distinct
-                                     keys.  Any implementation just needs to support
-                                     put/get.
-    -   `options.maxKeys` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** If using the default
-                                     implementation, you can specify how large you
-                                     want the table to be. (optional, default `10000`)
+-   `options` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 所需的选项：
+    -   `options.burst` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 突发
+    -   `options.rate` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 速率
+    -   `options.ip` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** IP
+    -   `options.username` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** 用户名
+    -   `options.xff` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** X-Forwarded-For
+    -   `options.setHeaders` **[Boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 设置响应头的速率，限制（突发）和剩余。(可选，默认为 `false`)
+    -   `options.overrides` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 覆盖对象
+    -   `options.tokensTable` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 一个存储引擎，这个插件将用来存储节流 keys -> bucket 的映射。如果你没有指定，默认是使用内存 O(1) LRU，具有 10k 个不同的键。任何实现只需要支持 put/get。
+    -   `options.maxKeys` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 如果使用默认实现，则可以指定您想要的表格大小。(可选，默认为 `10000`)
 
-**Examples**
+**例子**
 
-_An example options object with overrides:_
+_一个带 `overrides` 的选项对象示例：_
 
 ```javascript
 {
-  burst: 10,  // Max 10 concurrent requests (if tokens)
-  rate: 0.5,  // Steady state: 1 request / 2 seconds
-  ip: true,   // throttle per IP
+  burst: 10,  // 最多 10 个并发请求（如果令牌）
+  rate: 0.5,  // 稳定状态：1次请求 / 2秒
+  ip: true,   // 针对每个 IP 进行节流
   overrides: {
     '192.168.1.1': {
       burst: 0,
-      rate: 0    // unlimited
+      rate: 0    // 无限制
   }
 }
 ```
 
--   Throws **TooManyRequestsError** 
+-   抛出 **TooManyRequestsError** 
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### requestExpiry
 
-Request Expiry can be used to throttle requests that have already exceeded
-their client timeouts. Requests can be sent with a configurable client
-timeout header, e.g. 'x-request-expiry-time', which gives in absolute ms
-since epoch, when this request will be timed out by the client.
+requestExpiry 可用于限制已超过其客户端超时时间的请求。可以使用可配置的客户端超时头发送请求，如 'x-request-expiry-time'，当这个请求被客户端超时，将给出从 Epoch 开始计算的绝对毫秒数。
 
-This plugin will throttle all incoming requests via a 504 where
-'x-request-expiry-time' less than Date.now() -- since these incoming requests
-have already been timed out by the client. This prevents the server from
-processing unnecessary requests.
+这个插件将通过 504 限制 'x-request-expiry-time' 小于 Date.now() 的所有传入的请求 —— 因为这些传入的请求已被客户端超时。这可以防止服务器处理不必要的请求。
 
-Request expiry will use headers to tell if the incoming request has expired.
-There are two options for this plugin:
- 1\. Absolute Time
-    _ Time in Milliseconds since Epoch when this request should be
-    considered expired
- 2\. Timeout
-    _ The request start time is supplied
-    _ A timeout, in milliseconds, is given
-    _ The timeout is added to the request start time to arrive at the
-      absolute time in which the request is considered expired
+requestExpiry 将使用报头来判断传入的请求是否已过期。这个插件有两个选项：
 
-#### Using an external storage mechanism for key/bucket mappings.
+ 1、绝对时间，自 Epoch 开始的绝对时间（以毫秒为单位），此请求应被视为过期。
+ 
+ 2、超时，提供请求开始之后的超时时间（以毫秒为单位）。超时加上请求开始时间等于请求被认为过期的绝对时间。
 
-By default, the restify throttling plugin uses an in-memory LRU to store
-mappings between throttling keys (i.e., IP address) to the actual bucket that
-key is consuming.  If this suits you, you can tune the maximum number of keys
-to store in memory with `options.maxKeys`; the default is 10000.
+#### 使用 key/bucket 映射的外部存储机制。
 
-In some circumstances, you want to offload this into a shared system, such as
-Redis, if you have a fleet of API servers and you're not getting steady
-and/or uniform request distribution.  To enable this, you can pass in
-`options.tokensTable`, which is simply any Object that supports `put` and
-`get` with a `String` key, and an `Object` value.
+默认情况下，restify 节流插件使用内存中的 LRU 将节流键（即 IP 地址）与键消耗的实际 bucket 之间的映射进行存储。如果这适合您，您可以使用 `options.maxKeys` 来调整存储在内存中的最大键数量；默认值是 10000。
 
-**Parameters**
+在某些情况下，您希望将其卸载到共享系统中，例如 Redis，如果您拥有一组 API 服务器，并且您没有获得稳定和/或统一的请求分配。要启用该功能，您可以传入 `options.tokensTable`，它只是任何支持 `put` 和 `get` 的 `String` 对象以及一个 `Object` 值。
 
--   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** an options object
-    -   `opts.absoluteHeader` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** The header key to be used for
-                                          the expiry time of each request.
-    -   `opts.startHeader` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** The header key for the start time
-                                          of the request.
-    -   `opts.timeoutHeader` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** The header key for the time in
-                                          milliseconds that should ellapse before
-                                          the request is considered expired.
+**参数**
 
-**Examples**
+-   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 一个选项对象
+    -   `opts.absoluteHeader` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** 用于每个请求过期时间的报头键。
+    -   `opts.startHeader` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 请求开始时间的报头键。
+    -   `opts.timeoutHeader` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 在请求被认为已过期之前报头键应该消耗的毫秒数。
 
-_The only option provided is `header` which is the request header used
-to specify the client timeout._
+**例子**
+
+_提供的唯一选项是 `header`，它是用于指定客户端超时的请求报头。_
 
 ```javascript
 server.use(restify.plugins.requestExpiry({
-    header: 'x-request-expiry-time'
+  header: 'x-request-expiry-time'
 });
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### inflightRequestThrottle
 
-The `inflightRequestThrottle` module allows you to specify an upper limit to
-the maximum number of inflight requests your server is able to handle. This
-is a simple heuristic for protecting against event loop contention between
-requests causing unacceptable latencies.
+`inflightRequestThrottle` 模块允许您指定服务器能够处理的最大数量的 inflight 请求上限。这是一种简单的启发式方法，用于防止请求之间的事件循环争用导致无法接受的延迟。
 
-The custom error is optional, and allows you to specify your own response
-and status code when rejecting incoming requests due to too many inflight
-requests. It defaults to `503 ServiceUnavailableError`.
+自定义错误是可选的，允许您在由于太多的 inflight 请求而导致拒绝传入请求时，指定自己的响应和状态码。它默认为 `503 ServiceUnavailableError`。
 
-This plugin should be registered as early as possibly in the middleware stack
-using `pre` to avoid performing unnecessary work.
+这个插件应尽早在中间件堆栈中使用 `pre` 注册，以避免执行不必要的工作。
 
-**Parameters**
+**参数**
 
--   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** configure this plugin
-    -   `opts.limit` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** maximum number of inflight requests the server
-           will handle before returning an error
-    -   `opts.err` **[Error](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Error)** A restify error used as a response when the
-           inflight request limit is exceeded
-    -   `opts.server` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** the instance of the restify server this
-           plugin will throttle.
+-   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 配置这个插件
+    -   `opts.limit` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 在返回错误之前服务器将要处理的最大数量的 inflight 请求
+    -   `opts.err` **[Error](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Error)** 当超过 inflight 请求限制时，将使用 restify 错误作为响应
+    -   `opts.server` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 该插件将节流的 restify 服务器实例。
 
-**Examples**
+**例子**
 
 ```javascript
 var errors = require('restify-errors');
@@ -606,87 +546,31 @@ var restify = require('restify');
 
 var server = restify.createServer();
 const options = { limit: 600, server: server };
-options.res = new errors.InternalServerError();
+options.err = new errors.InternalServerError();
 server.pre(restify.plugins.inflightRequestThrottle(options));
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** middleware to be registered on server.pre
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 需要在 server.pre 上注册的中间件
 
 ### cpuUsageThrottle
 
-cpuUsageThrottle is a middleware that rejects a variable number of requests
-(between 0% and 100%) based on a historical view of CPU utilization of a
-Node.js process. Essentially, this plugin allows you to define what
-constitutes a saturated Node.js process via CPU utilization and it will
-handle dropping a % of requests based on that definiton. This is useful when
-you would like to keep CPU bound tasks from piling up causing an increased
-per-request latency.
+cpuUsageThrottle 是拒绝可变数量请求的中间件（介于 0％ 和 100％ 之间），它基于 Node.js 进程 CPU 利用率的历史视图。从本质上讲，这个插件允许你通过 CPU 利用率定义 Node.js 进程的饱和状态，它将处理基于该定义 a ％ 的请求。当您想要保持 CPU 约束任务堆积，从而导致每请求延迟增加时，这会非常有用。
 
-The algorithm asks you for a maximum CPU utilization rate, which it uses to
-determine at what point it should be rejecting 100% of traffic. For a normal
-Node.js service, this is 1 since Node is single threaded. It uses this,
-paired with a limit that you provide to determine the total % of traffic it
-should be rejecting. For example, if you specify a limit of .5 and a max of
-1, and the current EWMA (next paragraph) value reads .75, this plugin will
-reject approximately 50% of all requests.
+该算法要求您提供最大的 CPU 利用率，用于确定它应该拒绝 100％ 的流量。对于一个正常的 Node.js 服务，这是 1，因为 Node.js 是单线程的。它使用这一点，与您提供的限制进行配对，以确定它应拒绝的总流量百分比。例如，如果您指定的限制为 .5，最大值为 1，并且当前的 EWMA（下一段）值为 .75，则此插件将拒绝大约 50％ 的所有请求。
 
-When looking at the process' CPU usage, this algorithm will take a load
-average over a user specified interval. example, if given an interval of
-250ms, this plugin will attempt to record the average CPU utilization over
-250ms intervals. Due to contention for resources, the duration of each
-average may be wider or narrower than 250ms. To compensate for this, we use
-an exponentially weighted moving average. The EWMA algorithm is provided by
-the ewma module. The parameter for configuring the EWMA is halfLife. This
-value controls how quickly each load average measurment decays to half it's
-value when being represented in the current average. For example, if you
-have an interval of 250, and a halfLife of 250, you will take the previous
-ewma value multiplied by 0.5 and add it to the new CPU utilization average
-measurement multiplied by 0.5. The previous value and the new measurement
-would each represent 50% of the new value. A good way of thinking about the
-halfLife is in terms of how responsive this plugin will be to spikes in CPU
-utilization. The higher the halfLife, the longer CPU utilization will have
-to remain above your defined limit before this plugin begins rejecting
-requests and, converserly, the longer it will have to drop below your limit
-before the plugin begins accepting requests again. This is a knob you will
-want to with play when trying to determine the ideal value for your use
-case.
+在查看进程的 CPU 使用情况时，该算法将在用户指定的时间间隔内取平均值。例如，如果给定 250ms 的间隔，则此插件将尝试记录 250ms 间隔内的平均 CPU 利用率。由于竞争资源，每个平均的持续时间可能比 250ms 更长或更短。为了弥补这一点，我们使用指数加权移动平均。EWMA 算法由 ewma 模块提供。用于配置 EWMA 的参数是半衰期。该值控制每个加载平均测量值在当前平均值中衰减到半值时的速度。例如，如果间隔为 250，半衰期为 250，则将之前的 ewma 值乘以 0.5，并加上新的 CPU 利用率平均测量值乘以 0.5 的值。之前的值和新的测量值将分别代表新值的 50％。考虑半衰期的一个好方法就是该插件对 CPU 利用率高峰的响应程度。半衰期越高，在此插件开始拒绝请求之前，较长时间的 CPU 利用率必须保持在您定义的限制之上，反过来说，在插件再次接受请求之前，它将不得不降低到极限以下。当试图确定您的用例的理想值之前这是一个可调控的值。
 
-For a better understanding of the EWMA algorithn, refer to the documentation
-for the ewma module.
+为了更好地理解 EWMA 算法，请参阅 ewma 模块的文档。
 
-**Parameters**
+**参数**
 
--   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** Configure this plugin.
-    -   `opts.limit` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** The point at which restify will begin
-           rejecting a % of all requests at the front door.
-           This value is a percentage.
-           For example 0.8 === 80% average CPU utilization. Defaults to 0.75.
-    -   `opts.max` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** The point at which restify will reject 100% of
-           all requests at the front door. This is used in conjunction with limit to
-           determine what % of traffic restify needs to reject when attempting to
-           bring the average load back to the user requested values. Since Node.js is
-           single threaded, the default for this is 1. In some rare cases, a Node.js
-           process can exceed 100% CPU usage and you will want to update this value.
-    -   `opts.interval` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** How frequently we calculate the average CPU
-           utilization. When we calculate an average CPU utilization, we calculate it
-           over this interval, and this drives whether or not we should be shedding
-           load. This can be thought of as a "resolution" where the lower this value,
-           the higher the resolution our load average will be and the more frequently
-           we will recalculate the % of traffic we should be shedding. This check
-           is rather lightweight, while the default is 250ms, you should be able to
-           decrease this value without seeing a significant impact to performance.
-    -   `opts.halfLife` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** When we sample the CPU usage on an
-           interval, we create a series of data points.
-           We take these points and calculate a
-           moving average. The halfLife indicates how quickly a point "decays" to
-           half it's value in the moving average. The lower the halfLife, the more
-           impact newer data points have on the average. If you want to be extremely
-           responsive to spikes in CPU usage, set this to a lower value. If you want
-           your process to put more emphasis on recent historical CPU usage when
-           determininng whether it should shed load, set this to a higher value. The
-           unit is in ms. Defaults to 250.
+-   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 配置该插件。
+    -   `opts.limit` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** restify 将开始拒绝传入的 a % 的所有请求。这个值是一个百分比。例如，0.8 === 80％ 的 CPU 平均利用率。默认为 0.75。
+    -   `opts.max` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** restify 将拒绝传入 100％ 的所有请求。这与 `limit` 一起使用，以确定在尝试将平均负载恢复到用户请求值时，需要拒绝的流量占总流量的百分比。由于 Node.js 是单线程的，因此默认值为 1。在一些极端情况下，Node.js 进程可能会超过 100％ 的 CPU 使用率，此时您需要更新该值。
+    -   `opts.interval` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** 计算平均 CPU 利用率的频率。当我们计算一个平均的 CPU 使用率时，我们会在这个时间间隔内计算出来，这会督促我们是否应该减轻负载。这可以被认为是一个“解析率”，这个值越低，我们的平均负载的解析率越高，我们将更频繁地重新计算我们应该减少的流量的百分比。此检查相当轻量，而且默认值为 250 毫秒，您应该能够降低此值而不会对性能产生重大影响。
+    -   `opts.halfLife` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)?** 当我们在一个时间间隔内采样 CPU 使用率时，我们创建了一系列数据点。我们取这些点并计算移动平均值。半衰期表示一个点“移动”到移动平均值一半的速度有多快。半衰期越低，新数据点对平均值的影响就越大。如果您希望对 CPU 使用率的峰值作出极其敏感的响应，请将其设置为较低的值。如果您希望自己的进程在确定是否应该减少负载时，更加强调最近的历史 CPU 使用率，请将其设置为更高的值。单位是毫秒。默认为 250。
 
-**Examples**
+**例子**
 
 ```javascript
 var restify = require('restify');
@@ -702,8 +586,7 @@ const options = {
 server.pre(restify.plugins.cpuUsageThrottle(options));
 ```
 
-_You can also update the plugin during runtime using the `.update()` function.
-This function accepts the same `opts` object as a constructor._
+_您也可以使用 `.update()` 函数在运行时更新插件。该函数接受与构造函数相同的 `opts` 对象。_
 
 ```javascript
 var plugin = restify.plugins.cpuUsageThrottle(options);
@@ -712,84 +595,79 @@ server.pre(plugin);
 plugin.update({ limit: .4, halfLife: 5000 });
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** middleware to be registered on server.pre
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 需要在 server.pre 上注册的中间件
 
 ### conditionalHandler
 
-Runs first handler that matches to the condition
+运行与条件匹配的第一个处理程序。
 
-**Parameters**
+**参数**
 
--   `candidates` **([Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)>)** candidates
-    -   `candidates.handler` **([Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function) \| [Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)>)** handler(s)
+-   `candidates` **([Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)>)** 候选对象
+    -   `candidates.handler` **([Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function) \| [Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)>)** 处理程序
     -   `candidates.version` **([String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)>)?** '1.1.0', ['1.1.0', '1.2.0']
-    -   `candidates.contentType` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** accepted content type, '\*\\/json'
+    -   `candidates.contentType` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)?** 接受的内容类型，'\*\\/json'
 
-**Examples**
+**例子**
 
 ```javascript
 server.use(restify.plugins.conditionalHandler({
-   contentType: 'application/json',
-   version: '1.0.0',
-   handler: function (req, res, next) {
-       next();
-   })
+  contentType: 'application/json',
+  version: '1.0.0',
+  handler: function (req, res, next) {
+    next();
+  })
 });
 
 server.get('/hello/:name', restify.plugins.conditionalHandler([
   {
-     version: '1.0.0',
-     handler: function(req, res, next) { res.send('1.x'); }
+    version: '1.0.0',
+    handler: function(req, res, next) { res.send('1.x'); }
   },
   {
-     version: ['1.5.0', '2.0.0'],
-     handler: function(req, res, next) { res.send('1.5.x, 2.x'); }
+    version: ['1.5.0', '2.0.0'],
+    handler: function(req, res, next) { res.send('1.5.x, 2.x'); }
   },
   {
-     version: '3.0.0',
-     contentType: ['text/html', 'text/html']
-     handler: function(req, res, next) { res.send('3.x, text'); }
+    version: '3.0.0',
+    contentType: ['text/html', 'text/html']
+    handler: function(req, res, next) { res.send('3.x, text'); }
   },
   {
-     version: '3.0.0',
-     contentType: 'application/json'
-     handler: function(req, res, next) { res.send('3.x, json'); }
+    version: '3.0.0',
+    contentType: 'application/json'
+    handler: function(req, res, next) { res.send('3.x, json'); }
   },
-  // Array of handlers
+  // 处理程序组
   {
-     version: '4.0.0',
-     handler: [
-         function(req, res, next) { next(); },
-         function(req, res, next) { next(); },
-         function(req, res, next) { res.send('4.x') }
-     ]
+    version: '4.0.0',
+    handler: [
+      function(req, res, next) { next(); },
+      function(req, res, next) { next(); },
+      function(req, res, next) { res.send('4.x') }
+    ]
   },
 ]);
 // 'accept-version': '^1.1.0' => 1.5.x, 2.x'
-// 'accept-version': '3.x', accept: 'application/json' => '3.x, json'
+// 'accept-version': '3.x', 接受：'application/json' => '3.x, json'
 ```
 
--   Throws **InvalidVersionError** 
--   Throws **UnsupportedMediaTypeError** 
+-   抛出 **InvalidVersionError** 
+-   抛出 **UnsupportedMediaTypeError** 
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### conditionalRequest
 
-Returns a set of plugins that will compare an already set `ETag` header with
-the client's `If-Match` and `If-None-Match` header, and an already set
-Last-Modified header with the client's `If-Modified-Since` and
-`If-Unmodified-Since` header.
+返回一组插件，用于将已设置的 `ETag` 头与客户端的 `If-Match` 和 `If-None-Match` 头以及已设置的 `Last-Modified` 头与客户端的 `If-Modified-Since` 和 `If-Unmodified-Since` 头进行比较。
 
-You can use this handler to let clients do nice HTTP semantics with the
-"match" headers.  Specifically, with this plugin in place, you would set
-`res.etag=$yourhashhere`, and then this plugin will do one of:
+您可以使用此处理程序让客户端使用 "match" 头完成良好的 HTTP 语义。具体来说，使用该插件，您可以设置 `res.etag=$yourhashhere`，然后这个插件会执行以下操作之一：
 
--   return `304` (Not Modified) [and stop the handler chain]
--   return `412` (Precondition Failed) [and stop the handler chain]
--   Allow the request to go through the handler chain.
+-   返回 `304` (Not Modified) [并停止处理程序链]
+-   返回 `412` (Precondition Failed) [并停止处理程序链]
+-   允许请求通过处理程序链。
 
-The specific headers this plugin looks at are:
+这个插件的特定报头是：
 
 -   `Last-Modified`
 -   `If-Match`
@@ -797,7 +675,7 @@ The specific headers this plugin looks at are:
 -   `If-Modified-Since`
 -   `If-Unmodified-Since`
 
-**Examples**
+**例子**
 
 ```javascript
 server.use(restify.plugins.conditionalRequest());
@@ -816,33 +694,25 @@ server.get('/hello/:name', function(req, res, next) {
 });
 ```
 
--   Throws **BadRequestError** 
--   Throws **PreconditionFailedError** 
+-   抛出 **BadRequestError** 
+-   抛出 **PreconditionFailedError** 
 
-Returns **[Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)>** Handlers
+返回 **[Array](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)>** 处理程序
 
 ### auditLogger
 
-**Parameters**
+**参数**
 
--   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** The options object.
-    -   `opts.log` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** The logger.
-    -   `opts.event` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** The event from the server which initiates the
-        log, one of 'pre', 'routed', or 'after'
-    -   `opts.context` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** The optional context function of signature
-        f(req, res, route, err).  Invoked each time an audit log is generated. This
-        function can return an object that customizes the format of anything off the
-        req, res, route, and err objects. The output of this function will be
-        available on the `context` key in the audit object.
-    -   `opts.server` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** The restify server, used to emit
-        the audit log object programmatically
-    -   `opts.printLog` **[boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Whether to print the log
-        via the logger. (optional, default `true`)
+-   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 选项对象。
+    -   `opts.log` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 记录器。
+    -   `opts.event` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 来自启动日志的服务器的事件，'pre'、'routed' 或 'after' 之一。
+    -   `opts.context` **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)?** 签名函数 f(req, res, route, err) 的可选上下文。每次生成审计日志时调用。该函数可以返回一个对象，用于定制 req、res、route 和 err 对象之外的任何格式。该函数的输出将在审计对象的 `context` 关键字中可用。
+    -   `opts.server` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)?** restify 服务器，用于以编程方式发出审计日志对象
+    -   `opts.printLog` **[boolean](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 是否通过记录器打印日志。(可选，默认为 `true`)
 
-**Examples**
+**例子**
 
-_Audit logging is a special plugin, as you don't use it with `.use()`
-but with the `after` event:_
+_审计日志记录是一个特殊的插件，因为您不使用 `.use()`，而是使用 `after` 事件：_
 
 ```javascript
 server.on('after', restify.plugins.auditLogger({
@@ -861,6 +731,7 @@ _You pass in the auditor a bunyan logger, optionally server object,
 Ringbuffer and a flag printLog indicate if log needs to be print out at info
 level or not.  By default, without specify printLog flag, it will write out
 record lookling like this:_
+_您向审计器传递一个 bunyan 记录器，可选服务器对象，Ringbuffer 和一个 printLog 标识指示是否需要在信息级别打印日志。默认情况下，不指定 printLog 标识，它会写出如下所示的记录：_
 
 ```javascript
 {
@@ -875,14 +746,13 @@ record lookling like this:_
     "url": "/foo",
     "headers": {
       "authorization": "Basic YWRtaW46am95cGFzczEyMw==",
-      "user-agent": "curl/7.19.7 (universal-apple-darwin10.0)
-         libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3",
+      "user-agent": "curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3",
       "host": "localhost:8080",
       "accept": "application/json"
     },
     "httpVersion": "1.1",
     "query": {
-        "foo": "bar"
+      "foo": "bar"
     },
     "trailers": {},
     "version": "*",
@@ -910,10 +780,8 @@ record lookling like this:_
     "statusCode": 200,
     "headers": {
       "access-control-allow-origin": "*",
-      "access-control-allow-headers": "Accept, Accept-Version,
-         Content-Length, Content-MD5, Content-Type, Date, Api-Version",
-      "access-control-expose-headers": "Api-Version, Request-Id,
-         Response-Time",
+      "access-control-allow-headers": "Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, Api-Version",
+      "access-control-expose-headers": "Api-Version, Request-Id, Response-Time",
       "server": "Joyent SmartDataCenter 7.0.0",
       "x-request-id": "ed634c3e-1af0-40e4-ad1e-68c2fb67c8e1",
       "access-control-allow-methods": "GET",
@@ -928,8 +796,8 @@ record lookling like this:_
     "trailer": false
   },
   "route": {
-  "name": "GetFoo",
-  "version": ["1.0.0"]
+    "name": "GetFoo",
+    "version": ["1.0.0"]
   },
   "secure": false,
   "level": 30,
@@ -939,80 +807,63 @@ record lookling like this:_
 }
 ```
 
-_The `timers` field shows the time each handler took to run in microseconds.
-Restify by default will record this information for every handler for each
-route. However, if you decide to include nested handlers, you can track the
-timing yourself by utilizing the Request
-[startHandlerTimer](#starthandlertimerhandlername) and
-[endHandlerTimer](#endhandlertimerhandlername) API.
-You can also listen to auditlog event and get same above log object when
-log event emits. For example_
+_ `timers` 字段显示每个处理程序运行的时间（以微秒为单位）。默认情况下，Restify 将为每个路由，每个处理程序记录此信息。但如果您决定包含嵌套的处理程序，则可以使用 Request 的 [startHandlerTimer](/api/request/#starthandlertimer) 和 [endHandlerTimer](/api/request/#endhandlertimer) API 自行跟踪计时。当日志事件发出时，您还可以侦听 auditlog 事件并获取与上面的日志对象相同的信息。例如：_
 
 ```javascript
 SERVER.on('auditlog', function (data) {
-    //do some process with log
+  // 对日志做一些处理
 });
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** Handler
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 处理程序
 
 ### metrics
 
-The module includes the following plugins to be used with restify's `after`
-event, e.g., `server.on('after', restify.plugins.metrics());`:
+该模块包含以下用于 restify  `after` 事件的插件，例如，`server.on('after', restify.plugins.metrics())`：
 
-A plugin that listens to the server's after event and emits information
-about that request.
+一个监听服务器 after 事件并发出关于该请求的信息的插件。
 
-**Parameters**
+**参数**
 
--   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** an options obj
-    -   `opts.server` **Server** restify server
--   `callback` **createMetrics~callback** a callback fn
+-   `opts` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 一个选项对象
+    -   `opts.server` **Server** restify 服务器
+-   `callback` **createMetrics~callback** 一个回调函数
 
 **Examples**
 
 ```javascript
 server.on('after', restify.plugins.metrics({ server: server },
-    function (err, metrics, req, res, route) {
-        // metrics is an object containing information about the request
-}));
+  function (err, metrics, req, res, route) {
+    // 指标是一个包含有关请求信息的对象
+  })
+);
 ```
 
-Returns **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** returns a function suitable to be used
-  with restify server's `after` event
+返回 **[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)** 返回一个适用于 restify 服务器 `after` 事件的函数
 
 ## 类型
 
 ### metrics~callback
 
-Callback used by metrics plugin
+指标插件使用的回调
 
-Type: [Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)
+类型：[Function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function)
 
-**Parameters**
+**参数**
 
 -   `err` **[Error](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Error)** 
--   `metrics` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** metrics about the request
-    -   `metrics.statusCode` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** status code of the response. can be
-          undefined in the case of an uncaughtException
-    -   `metrics.method` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** http request verb
-    -   `metrics.totalLatency` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** latency includes both request is flushed
-                                             and all handlers finished
-    -   `metrics.latency` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** latency when request is flushed
-    -   `metrics.preLatency` **([Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) | null)** pre handlers latency
-    -   `metrics.useLatency` **([Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) | null)** use handlers latency
-    -   `metrics.routeLatency` **([Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) | null)** route handlers latency
-    -   `metrics.path` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** `req.path()` value
-    -   `metrics.inflightRequests` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** Number of inflight requests pending
-          in restify.
-    -   `metrics.unifinishedRequests` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** Same as `inflightRequests`
-    -   `metrics.connectionState` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** can be either `'close'` or
-         `undefined`. If this value is set, err will be a
-          corresponding `RequestCloseError`.
-          If connectionState is either
-          `'close'`, then the `statusCode` is not applicable since the
-          connection was severed before a response was written.
--   `req` **[Request](https://developer.mozilla.org/Add-ons/SDK/High-Level_APIs/request)** the request obj
--   `res` **[Response](https://developer.mozilla.org/zh-CN/docs/Web/Guide/HTML/HTML5)** the response obj
--   `route` **Route** the route obj that serviced the request
+-   `metrics` **[Object](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)** 有关请求的指标
+    -   `metrics.statusCode` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 响应的状态码。在 `uncaughtException` 的情况下可以是 undefined
+    -   `metrics.method` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** http 请求动词
+    -   `metrics.totalLatency` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 延迟包括请求刷新和完成所有处理程序的时间
+    -   `metrics.latency` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 请求刷新时的延迟
+    -   `metrics.preLatency` **([Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) | null)** `pre` 处理程序的延迟
+    -   `metrics.useLatency` **([Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) | null)** `use` 处理程序的延迟
+    -   `metrics.routeLatency` **([Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) | null)** `route` 处理程序的延迟
+    -   `metrics.path` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** `req.path()` 的值
+    -   `metrics.inflightRequests` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** restify 中挂起的 inflight 请求的数量
+    -   `metrics.unifinishedRequests` **[Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)** 与 `inflightRequests` 相同
+    -   `metrics.connectionState` **[String](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)** 可以是 `'close'` 或 `undefined`。如果这个值被设置，err 将是一个相应的 `RequestCloseError`。如果 connectionState 是 `'close'`，那么 `statusCode` 不可用，因为在写入响应之前连接已被切断。
+-   `req` **[Request](https://developer.mozilla.org/Add-ons/SDK/High-Level_APIs/request)** 请求对象
+-   `res` **[Response](https://developer.mozilla.org/zh-CN/docs/Web/Guide/HTML/HTML5)** 响应对象
+-   `route` **Route** 为请求提供服务的路由对象
