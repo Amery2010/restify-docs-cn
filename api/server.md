@@ -145,8 +145,8 @@ server.listen('/tmp/server.sock')
 
 ```javascript
 server.get('/', function (req, res, next) {
-   res.send({ hello: 'world' });
-   next();
+  res.send({ hello: 'world' });
+  next();
 });
 ```
 
@@ -330,7 +330,7 @@ _输出：_
       compiledRegex: /^[\/]*$/,
       compiledUrlParams: null,
       handlers: [Array]
-     }
+    }
   ],
   server: {
     formatters: {

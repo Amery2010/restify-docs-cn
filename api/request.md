@@ -102,8 +102,8 @@ req.accepts('png');
 ```javascript
 // 传入的请求是 http://localhost:3000/foo/bar?a=1
 server.get('/:x/bar', function(req, res, next) {
-	console.warn(req.href());
-	// => /foo/bar/?a=1
+  console.warn(req.href());
+  // => /foo/bar/?a=1
 });
 ```
 
@@ -128,8 +128,8 @@ server.get('/:x/bar', function(req, res, next) {
 ```javascript
 // 传入的请求是 http://localhost:3000/foo/bar?a=1
 server.get('/:x/bar', function(req, res, next) {
-	console.warn(req.path());
-	// => /foo/bar
+  console.warn(req.path());
+  // => /foo/bar
 });
 ```
 
@@ -283,22 +283,22 @@ _调用此函数后，您必须显式调用 endHandlerTimer()，否则时间信�
 
 ```javascript
 server.get('/', function fooHandler(req, res, next) {
-	vasync.pipeline({
-		funcs: [
-			function nestedHandler1(req, res, next) {
-				req.startHandlerTimer('nestedHandler1');
-				// do something
-				req.endHandlerTimer('nestedHandler1');
-				return next();
-			},
-			function nestedHandler1(req, res, next) {
-				req.startHandlerTimer('nestedHandler2');
-				// do something
-				req.endHandlerTimer('nestedHandler2');
-				return next();
-			}...
-		]...
-	}, next);
+  vasync.pipeline({
+    funcs: [
+      function nestedHandler1(req, res, next) {
+        req.startHandlerTimer('nestedHandler1');
+        // do something
+        req.endHandlerTimer('nestedHandler1');
+        return next();
+      },
+      function nestedHandler1(req, res, next) {
+        req.startHandlerTimer('nestedHandler2');
+        // do something
+        req.endHandlerTimer('nestedHandler2');
+        return next();
+      }...
+    ]...
+  }, next);
 });
 ```
 
