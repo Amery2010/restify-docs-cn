@@ -1,4 +1,8 @@
-# 快速开始
+---
+title: 快速开始
+permalink: /docs/home/
+redirect_from: /docs/
+---
 
 通过 restify，您可以简单快速地创建一个服务器。以下代码就是一个标准的响应服务器：
 

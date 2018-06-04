@@ -1,6 +1,9 @@
-# Dtrace 指南
+---
+title: Dtrace 指南
+permalink: /docs/dtrace/
+---
 
-restify 最酷的功能之一是，无论何时添加新的路由/处理程序，它都会自动为您创建 DTrace 探针。
+Restify 最酷的功能之一是无论何时添加新的路由/处理程序，它都会自动为您创建 DTrace 探针。
 要使用 DTrace，您需要将 dtrace 选项传递给服务器 `restify.createServer({ dtrace: true })`。
 理解它的最佳方式就是通过查看例：
 

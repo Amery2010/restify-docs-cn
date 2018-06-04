@@ -1,3 +1,8 @@
+---
+title: 插件 API
+permalink: /docs/plugins-api/
+---
+
 ### 目录
 
 -   [用法](#用法)

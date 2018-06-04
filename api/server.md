@@ -1,3 +1,8 @@
+---
+title: 服务器 API
+permalink: /docs/server-api/
+---
+
 ### 目录
 
 -   [createServer](#createserver)

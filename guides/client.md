@@ -1,4 +1,7 @@
-# 客户端指南
+---
+title: 客户端指南
+permalink: /docs/client-guide/
+---
 
 事实上在 restify 中有三个独立的客户端：
 

@@ -1,3 +1,8 @@
+---
+title: 格式化 API
+permalink: /docs/formatters-api/
+---
+
 ### 目录
 
 -   [用法](#用法)
