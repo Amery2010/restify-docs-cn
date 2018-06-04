@@ -1,5 +1,5 @@
 ---
-title: 将6.x迁移到7.x迁移指南
+title: 将6.x迁移到7.x迁移
 permalink: /docs/6to7/
 ---
 

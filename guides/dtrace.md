@@ -1,5 +1,5 @@
 ---
-title: Dtrace 指南
+title: Dtrace
 permalink: /docs/dtrace/
 ---
 

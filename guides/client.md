@@ -1,5 +1,5 @@
 ---
-title: 客户端指南
+title: 客户端
 permalink: /docs/client-guide/
 ---
 

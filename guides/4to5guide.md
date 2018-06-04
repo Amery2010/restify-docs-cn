@@ -1,5 +1,5 @@
 ---
-title: 将4.x迁移到5.x迁移指南
+title: 将4.x迁移到5.x迁移
 permalink: /docs/4to5/
 ---
 
