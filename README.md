@@ -1,4 +1,8 @@
+![restify](https://github.com/restify/node-restify/raw/gh-images/logo/png/restify_logo_black_transp_288x288.png?raw=true "restify")
+
 # 文档介绍
+
+本文档同步翻译了 Restify 官方文档，为了方便阅读采用了 [Gitbook](https://github.com/GitbookIO/gitbook) 的目录结构，并支持生产 gitbook。除此之外还使用了官方文档的[网站模板](https://github.com/Amery2010/restify.xiangfa.org)同步构建了[网站](https://restify.xiangfa.org/)，目前网站已经上线，可以进行文档查询。
 
 ### 目录
 

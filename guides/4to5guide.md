@@ -7,7 +7,7 @@ permalink: /docs/4to5/
 
 restify 5.0 终于来了！非常感谢所有我们的贡献者。5.x 修复了大量的错误，添加了一些新功能，并介绍了一些重大更改。本指南有助于理解自上次 4.x 发布以来发生的所有主要更改。更详细的更改日志可以在 CHANGES.md 中找到。
 
-#### queryParser() and bodyParser()
+#### queryParser() 和 bodyParser()
 
 默认情况下，queryParser 和 bodyParser 不再将 req.query 和 req.body 映射到 req.params。为了获得旧的行为，请在使用这些插件时启用 mapParams 行为。
 
