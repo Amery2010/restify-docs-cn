@@ -110,8 +110,8 @@ server.pre(restify.plugins.dedupeSlashes());
 
 ```javascript
 server.use(function(req, res, next) {
-	console.warn('run for all routes!');
-	return next();
+  console.warn('run for all routes!');
+  return next();
 });
 ```
 
@@ -146,12 +146,12 @@ server.use(function(req, res, next) {
   return next(new Error('boom!'));
 });
 ```
-  return next(new NotFoundError('not here!'));
 
 这会发送一个 http 404，因为 `NotFoundError` 构造函数为 `statusCode` 提供了一个 404 的值：
 
 ```javascript
 server.use(function(req, res, next) {
+  return next(new NotFoundError('not here!'));
 });
 ```
 
@@ -171,7 +171,7 @@ server.use(function(req, res, next) {
 
 ## 路由
 
-'basic' 模式下的 restify 路由行为与 express/sinatra 非常类似，都使用 HTTP 动词与参数化资源一起来确定要运行的处理程序链。在 `req.params` 中可以找到与指定占位符关联的值。这些值在传递给您之前会被 URL 编码。
+“basic” 模式下的 restify 路由行为与 express/sinatra 非常类似，都使用 HTTP 动词与参数化资源一起来确定要运行的处理程序链。在 `req.params` 中可以找到与指定占位符关联的值。这些值在传递给您之前会被 URL 编码。
 
 ```javascript
 function send(req, res, next) {
@@ -186,7 +186,7 @@ server.post('/hello', function create(req, res, next) {
 server.put('/hello', send);
 server.get('/hello/:name', send);
 server.head('/hello/:name', send);
-server.del('hello/:name', function rm(req, res, next) {
+server.del('/hello/:name', function rm(req, res, next) {
   res.send(204);
   return next();
 });
